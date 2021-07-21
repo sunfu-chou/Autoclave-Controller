@@ -3,14 +3,18 @@ import pigpio
 
 
 class MAX6675:
-    def __init__(self, pi, cs) -> None:
+    def __init__(self, cs) -> None:
         self.cs = cs
-        self.pi = pi
-        self.sensor = pi.spi_open(cs, 1000000, 0)
+        self.pi = pigpio.pi()
+        self.sensor = self.pi.spi_open(cs, 1000000, 0)
         self.t = time.time()
         self._temp = 0.0
         self._raw_data = [0, 0]
         self.read
+
+    def kill(self) -> None:
+        self.pi.spi_close(self.sensor)
+        self.pi.stop()
 
     @property
     def read(self) -> float:

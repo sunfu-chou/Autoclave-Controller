@@ -67,6 +67,9 @@ class HeaterController:
         self.pi.set_mode(self._pin, pigpio.OUTPUT)
         self.pi.callback(self._pin, pigpio.RISING_EDGE, self._callback)
 
+    def kill(self) -> None:
+        self.stop()
+
     def _callback(self, pin: int = None, level: int = None, tick: int = None) -> int:
         """The callback function used to control pwm.
 
