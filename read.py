@@ -50,9 +50,9 @@ class TRead(threading.Thread):
 
                 data.timefinished = time.time() - self.start_time
 
-                self.lock.acquire()
+                # self.lock.acquire()
                 self.queue.put(data)
-                self.lock.release()
+                # self.lock.release()
 
                 time.sleep((self.sample_time - (time.time() - self.start_time) % self.sample_time))
         except KeyboardInterrupt:

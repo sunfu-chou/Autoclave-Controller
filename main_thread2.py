@@ -18,7 +18,7 @@ def main():
     data_q = queue.Queue()
     lock = threading.Lock()
     read = TRead(1, "read_sensors", lock, data_q, sensors, time.time(), 0, 0.25)
-    write = TWrite(2, "write", lock, data_q, "./data/data.csv")
+    write = TWrite(2, "write", lock, data_q, "./test_data/test.csv")
     cli = TCli(3, "cli", read, write)
 
     read.daemon = True

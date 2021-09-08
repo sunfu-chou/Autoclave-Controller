@@ -33,12 +33,12 @@ class TWrite(threading.Thread):
         try:
             while self.active:
                 while self.queue.qsize() > 0:
-                    self.lock.acquire()
+                    # self.lock.acquire()
                     data = self.queue.get()
                     # print(data)
                     self.f.write(data.__str__())
                     self.write_api.write(bucket=self.bucket, record=data.to_point())
-                    self.lock.release()
+                    # self.lock.release()
 
                 time.sleep(2)
             self.f.close()

@@ -9,8 +9,6 @@ import queue
 import numpy as np
 from numpy.distutils.conv_template import parse_string
 
-import pigpio
-
 from max6675 import MAX6675
 
 import board
@@ -167,11 +165,11 @@ class SensorRead(threading.Thread):
                 data.temp_1 = data.raw_temp_1 * 0.8129 + 13.534
                 data.press = (data.raw_volt_0 - 0.5) / 4.0 * 17.0
                 data.volt_in = data.raw_volt_1
-                data.timefinished = time.time() - self.start_time
                 self.lock.acquire()
                 self.queue.put(data)
                 self.lock.release()
-                time.sleep((self.sample_time - (time.time() - self.start_time) % self.sample_time))
+                data.timefinished = time.time() - self.start_time
+                time.sleep(self.sample_time - data.timefinished % self.sample_time)
         except KeyboardInterrupt:
             pass
         print("{} is exiting".format(self.name))
@@ -198,7 +196,7 @@ class WriteDB(threading.Thread):
         self.queue = queue
         self.write_api = write_api
         self.bucket = bucket
-        self.f = open(self.get_file_name("./data/data.csv"), "w")
+        self.f = open(self.get_file_name(filename), "w")
         self.active = True
         # print(Data().title())
         self.f.write(Data().title())
@@ -307,7 +305,7 @@ def main():
     data_q = queue.Queue()
     lock = threading.Lock()
     sensor_read = SensorRead(1, "sensor_read", lock, data_q, sensors, time.time(), 0, 0.25)
-    write_db = WriteDB(2, "write_db", lock, data_q, write_api, bucket, "/home/ubuntu/pot/0901.csv")
+    write_db = WriteDB(2, "write_db", lock, data_q, write_api, bucket, "/home/ubuntu/pot/data/data.csv")
     cli = Cli(3, "cli", sensor_read, write_db)
 
     sensor_read.daemon = True
