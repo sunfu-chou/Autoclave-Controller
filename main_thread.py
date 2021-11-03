@@ -197,6 +197,7 @@ class WriteDB(threading.Thread):
         self.write_api = write_api
         self.bucket = bucket
         self.f = open(self.get_file_name(filename), "w")
+        print(self.f.name)
         self.active = True
         # print(Data().title())
         self.f.write(Data().title())
@@ -289,7 +290,7 @@ def main():
     ############
     #   PWM    #
     ############
-    hc = HeaterController(12, 10e3)
+    hc = HeaterController(12, 400)
     hc.start(0.0)
 
     ############

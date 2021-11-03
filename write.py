@@ -12,11 +12,10 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 
 
 class TWrite(threading.Thread):
-    def __init__(self, threadID: int, name: str, lock: threading.Lock, queue: queue.Queue, filename: str) -> None:
+    def __init__(self, threadID: int, name: str, queue: queue.Queue, filename: str) -> None:
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
-        self.lock = lock
         self.queue = queue
         self.f = open(self.get_file_name(filename), "w")
         self.active = True
@@ -33,12 +32,9 @@ class TWrite(threading.Thread):
         try:
             while self.active:
                 while self.queue.qsize() > 0:
-                    # self.lock.acquire()
                     data = self.queue.get()
-                    # print(data)
                     self.f.write(data.__str__())
                     self.write_api.write(bucket=self.bucket, record=data.to_point())
-                    # self.lock.release()
 
                 time.sleep(2)
             self.f.close()

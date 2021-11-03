@@ -48,9 +48,7 @@ class HeaterController:
     # The max value of duty cycle range.
     DUTY_RANGE = int(1e6)
 
-    def __init__(
-        self, pin: int, freq: int = int(1e5), exceptions: bool = True
-    ) -> "HeaterController":
+    def __init__(self, pin: int, freq: int = int(1e5), exceptions: bool = True) -> "HeaterController":
         """The init method of HeaterController.
 
         Args:
@@ -66,6 +64,20 @@ class HeaterController:
         pigpio.exceptions = exceptions
         self.pi.set_mode(self._pin, pigpio.OUTPUT)
         self.pi.callback(self._pin, pigpio.RISING_EDGE, self._callback)
+
+        self.setpoint_press = 0.0
+        self.integrated_press = 0.0
+        self.error_press = 0.0
+        self.kp_press = 1
+        self.ki_press = 0.0007
+        self.kd_press = 0.0
+
+        self.setpoint_temp = 0.0
+        self.integrated_temp = 0.0
+        self.error_temp = 0.0
+        self.kp_temp = 2.0
+        self.ki_temp = 0.0004
+        self.kd_temp = 0.0
 
     def kill(self) -> None:
         self.stop()

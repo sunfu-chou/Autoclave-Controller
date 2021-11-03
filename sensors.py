@@ -18,7 +18,7 @@ class Sensors:
         self.ads = ADS.ADS1115(self.i2c)
         self.ads_0 = AnalogIn(self.ads, ADS.P0)
         self.ads_1 = AnalogIn(self.ads, ADS.P1)
-        self.hc = HeaterController(12, 10e3)
+        self.hc = HeaterController(12, 0.25)
         self.hc.start(0.0)
 
     def read(self) -> typing.Tuple[float, float, float, float, float]:

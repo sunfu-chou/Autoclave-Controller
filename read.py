@@ -7,30 +7,36 @@ from data import Data
 import datetime
 
 
+class Controller:
+    def init(self):
+        pass
+
+    def PID(self, press_fb, temp_fb):
+        pass
+
+
 class TRead(threading.Thread):
     def __init__(
         self,
         threadID: int,
         name: str,
-        lock: threading.Lock,
         queue: queue.Queue,
         sensors: Sensors,
-        start_time: float,
-        duration: float,
         sample_time: float,
+        duration: float,
     ) -> None:
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
-        self.lock = lock
         self.queue = queue
         self.seq = 0
         self.sensors = sensors
-        self.start_time = start_time
+        self.start_time = time.time()
         self.duration = duration
         self.sample_time = sample_time
         self.stop_time = self.start_time + self.duration
         self.active = True
+        self.controller = Controller()
 
     def run(self) -> None:
         print("Threading {} is starting".format(self.name))
@@ -47,12 +53,11 @@ class TRead(threading.Thread):
                 data.timestamp = now - self.start_time
 
                 data.read(self.sensors)
+                self.sensors.hc.duty = self.controller.PID(data.press, data.temp_0)
 
                 data.timefinished = time.time() - self.start_time
 
-                # self.lock.acquire()
                 self.queue.put(data)
-                # self.lock.release()
 
                 time.sleep((self.sample_time - (time.time() - self.start_time) % self.sample_time))
         except KeyboardInterrupt:
