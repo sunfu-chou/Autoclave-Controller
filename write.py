@@ -17,7 +17,9 @@ class TWrite(threading.Thread):
         self.threadID = threadID
         self.name = name
         self.queue = queue
-        self.f = open(self.get_file_name(filename), "w")
+        name = self.get_file_name(filename)
+        print(name)
+        self.f = open(name, "w")
         self.active = True
         # print(Data().title())
         self.f.write(data.Data().title())
