@@ -31,8 +31,25 @@ class TCli(threading.Thread):
                     self.sensor_read.kill()
                     self.write_db.kill()
                     self.kill()
+                elif self.func == "w":
+                    print("press kp is {}".format(self.sensor_read.controller.kp_press))
+                    print("press ki is {}".format(self.sensor_read.controller.ki_press))
+                    print("temp kp is {}".format(self.sensor_read.controller.kp_temp))
+                    print("temp ki is {}".format(self.sensor_read.controller.ki_temp))
+
                 else:
-                    print("Unknown Command {}".format(self.func))
+                    try:
+                        self.sensor_read.controller.setpoint_press = float(self.func)
+                        print("Press SetPoint is {}".format(self.sensor_read.controller.setpoint_press))
+                        print("Press FB is {}".format(self.sensor_read.controller.press_fb))
+                        print("Press FB Linear is {}".format(self.sensor_read.controller.press_fb_n))
+                        print("Temp SetPoint is {}".format(self.sensor_read.controller.setpoint_temp))
+                        print("Temp FB is {}".format(self.sensor_read.controller.temp_fb))
+                        print("Temp FB Linear is {}".format(self.sensor_read.controller.temp_fb_n))
+                        print("Duty is {}".format(self.sensor_read.controller.duty))
+                        print("Duty is {}".format(self.sensor_read.sensors.hc.duty))
+                    except ValueError:
+                        print("Unknown Command {}".format(self.func))
             print("Threading {} is exiting".format(self.name))
 
         except KeyboardInterrupt:
