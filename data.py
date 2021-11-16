@@ -63,10 +63,10 @@ class Data:
             self.duty,
         ) = sensors.read()
 
-        self.temp_0 = self.raw_temp_0 * 0.8129 + 13.534
-        self.temp_1 = self.raw_temp_1 * 0.8129 + 13.534
-        self.press = (self.raw_volt_0 - 0.5) / 4.0 * 17.0
-        self.volt_in = self.raw_volt_1
+        self.temp_0 = float(self.raw_temp_0 * 0.8129 + 13.534)
+        self.temp_1 = float(self.raw_temp_1 * 0.8129 + 13.534)
+        self.press = float((self.raw_volt_0 - 0.5) / 4.0 * 17.0)
+        self.volt_in = float(self.raw_volt_1)
 
     def to_point(self, measurement: str = "Pot") -> Point:
         return (

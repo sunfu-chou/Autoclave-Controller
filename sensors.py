@@ -23,11 +23,11 @@ class Sensors:
 
     def read(self) -> typing.Tuple[float, float, float, float, float]:
         return (
-            self.max_0.read,
-            self.max_1.read,
-            self.ads_0.voltage,
-            self.ads_1.voltage,
-            self.hc.duty,
+            float(self.max_0.read),
+            float(self.max_1.read),
+            float(self.ads_0.voltage),
+            float(self.ads_1.voltage),
+            float(self.hc.duty),
         )
 
     def kill(self) -> None:

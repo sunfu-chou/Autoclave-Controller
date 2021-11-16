@@ -87,7 +87,7 @@ class Controller:
         self.x4_steady_state = -0.2805
         self.x5_steady_state = 0.1553
         self.x6_steady_state = 0.476
-        self.KL = 4.94774704061055e-5
+        self.KL = 4.94774704061055e-20
         self.K1 = 6.850957196992270e-04
         self.K2 = -3.013768145255261e-04
         self.K3 = -2.252202811353843e-06
@@ -144,12 +144,12 @@ class Controller:
 
     def SS(self, timestamp, duty):
         if timestamp < 0.2:
-            self.x1_past = 0
-            self.x2_past = 0
-            self.x3_past = 0
-            self.x4_past = 0
-            self.x5_past = 0
-            self.x6_past = 0
+            self.x1_past = 3.492e6
+            self.x2_past = -1.562e5
+            self.x3_past = 0.2197
+            self.x4_past = -0.2833
+            self.x5_past = 0.1568
+            self.x6_past = 0.4808
             self.x1 = 0
             self.x2 = 0
             self.x3 = 0
@@ -169,29 +169,29 @@ class Controller:
         press_err = self.u_steady_state - self.press_fb
 
         integrated_press = self.integrated_press_past + self.press_err_past * 0.25  # 積分器
-        integrated_aug = (-1) * self.KL * integrated_press
+        integrated_aug = (1) * self.KL * integrated_press
 
         self.integrated_press_past = integrated_press
         self.press_err_past = press_err
 
         press_est_err = press_estimate - self.press_fb  # 估測器誤差回授
 
-        self.x1 = 0.999920615899239 * self.x1_past + 1013.34788210607 * duty + (-0.0429342294059150) * press_est_err
-        self.x2 = 0.998226013220676 * self.x2_past + (-1012.53688592551) * duty + (-0.00165406863850045) * press_est_err
-        self.x3 = (-0.781914434948314) * self.x3_past + 1.30835342044720 * duty + (-0.222898623775228) * press_est_err
+        self.x1 = 0.999920615899177 * self.x1_past + 1121.76082548340 * duty + (-0.0429342294059150) * press_est_err
+        self.x2 = 0.998226013220742 * self.x2_past + (-1121.48468411130) * duty + (-0.00165406863850045) * press_est_err
+        self.x3 = (-0.781914434948315) * self.x3_past + 1.58439928733227 * duty + (-0.222898623775228) * press_est_err
         self.x4 = (
-            (-0.384411449265331) * self.x4_past + (-1.30467015871265) * duty + (-0.549408061645774) * press_est_err
+            (-0.384411449265332) * self.x4_past + (-1.58739336744947) * duty + (-0.549408061645774) * press_est_err
         )
         self.x5 = (
             0.131101849447955 * self.x5_past
             + 0.326002234363228 * self.x6_past
-            + (0.249872166084580) * duty
+            + (-0.0828234008843126) * duty
             + (-0.417498782854124) * press_est_err
         )
         self.x6 = (
             (-0.326002234363228) * self.x5_past
             + 0.131101849447955 * self.x6_past
-            + (1.68659769272441) * duty
+            + (1.89755072155957) * duty
             + (-0.0105720190036861) * press_est_err
         )
 
