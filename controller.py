@@ -11,8 +11,8 @@ class Controller:
         self.setpoint_press = 0.0
         self.integrated_press = 0.0
         self.error_press = 0.0
-        self.kp_press = 0.25
-        self.ki_press = 0.00015
+        self.kp_press = 0.2
+        self.ki_press = 0.0003
         self.kd_press = 0.0
 
         self.setpoint_temp = 0.0
@@ -22,8 +22,8 @@ class Controller:
         self.ki_temp = 0.000001
         self.kd_temp = 0.0
 
-        self.bp_press = [0.3303, 0.7198, 1.2265, 1.9892, 2.8447, 3.8727, 4.7846, 5.3701, 5.9401, 6.5050]
-        self.table_press = [2.0202, 4.5511, 7.044, 9.5392, 12.0301, 14.526, 16.9685, 19.4498, 21.8550, 24.3024]
+        self.bp_press = [0.4782, 0.6701, 1.045, 1.6158, 2.3332, 3.4363, 3.8378, 4.3367, 6.4171, 9.4081]
+        self.table_press = [-1.7934, -2.2213, -2.6226, -3.2101, -3.78, -4.4052, -4.5385, -4.7455, -5.4985, -6.2973]
         self.bp_temp = [
             30.1872595638511,
             31.6409528432436,
@@ -70,6 +70,9 @@ class Controller:
         ][::-1]
 
         # SS
+        self.integrated_press_past = 0.0
+        self.press_err_past = 0.0
+
         self.x1_past = 0
         self.x2_past = 0
         self.x3_past = 0
@@ -77,19 +80,20 @@ class Controller:
         self.x5_past = 0
         self.x6_past = 0
 
-        self.u_steady_state = 0.1195
-        self.x1_steady_state = -1.539e06
-        self.x2_steady_state = -5.518e04
-        self.x3_steady_state = -0.01954
-        self.x4_steady_state = 0.07864
-        self.x5_steady_state = 2.364
-        self.x6_steady_state = -0.384
-        self.K1 = -0.00122424140197130
-        self.K2 = -0.000532555571343705
-        self.K3 = -1.19498414873539e-05
-        self.K4 = -1.12534521766320e-05
-        self.K5 = -0.00120580151903556
-        self.K6 = 0.00127834779555466
+        self.u_steady_state = 0.2446
+        self.x1_steady_state = 3.457e06
+        self.x2_steady_state = -1.546e05
+        self.x3_steady_state = 0.2175
+        self.x4_steady_state = -0.2805
+        self.x5_steady_state = 0.1553
+        self.x6_steady_state = 0.476
+        self.KL = 4.94774704061055e-5
+        self.K1 = 6.850957196992270e-04
+        self.K2 = -3.013768145255261e-04
+        self.K3 = -2.252202811353843e-06
+        self.K4 = 5.138524754988651e-07
+        self.K5 = -2.208657973554493e-07
+        self.K6 = 2.858375134903800e-07
         self.x1 = 0.0
         self.x2 = 0.0
         self.x3 = 0.0
@@ -146,43 +150,49 @@ class Controller:
             self.x4_past = 0
             self.x5_past = 0
             self.x6_past = 0
+            self.x1 = 0
+            self.x2 = 0
+            self.x3 = 0
+            self.x4 = 0
+            self.x5 = 0
+            self.x6 = 0
 
         press_estimate = (
-            -1.216549597987671e-05 * self.x1
-            + 1.471140990491615e-05 * self.x2
-            + 0.071087637176236 * self.x3
-            + 0.454480600223431 * self.x4
-            - 1.659858241875173e-05 * self.x5
-            + 1.875880868871518e-05 * self.x6
+            -1.612876133705310e-06 * self.x1
+            - 1.388759709639552e-06 * self.x2
+            + 0.035875457390861 * self.x3
+            + 0.347498852399868 * self.x4
+            - 0.030532189729400 * self.x5
+            - 0.288206336960354 * self.x6
         )
 
-        press_err = press_estimate - self.press_fb
+        press_err = self.u_steady_state - self.press_fb
 
-        self.x1 = 0.999962549618763 * self.x1_past + (-482.397408085760) * duty + (-0.707267860376471) * press_err
-        self.x2 = 0.998955191473366 * self.x2_past + (-482.360920371058) * duty + (0.0372765564060354) * press_err
-        self.x3 = (
-            (-0.256582692790596) * self.x3_past
-            + 0.882367801174803 * self.x4_past
-            + (-0.785997168278096) * duty
-            + (1.69823662861514) * press_err
-        )
+        integrated_press = self.integrated_press_past + self.press_err_past * 0.25  # 積分器
+        integrated_aug = (-1) * self.KL * integrated_press
+
+        self.integrated_press_past = integrated_press
+        self.press_err_past = press_err
+
+        press_est_err = press_estimate - self.press_fb  # 估測器誤差回授
+
+        self.x1 = 0.999920615899239 * self.x1_past + 1013.34788210607 * duty + (-0.0429342294059150) * press_est_err
+        self.x2 = 0.998226013220676 * self.x2_past + (-1012.53688592551) * duty + (-0.00165406863850045) * press_est_err
+        self.x3 = (-0.781914434948314) * self.x3_past + 1.30835342044720 * duty + (-0.222898623775228) * press_est_err
         self.x4 = (
-            (-0.882367801174803) * self.x3_past
-            + (-0.256582692790596) * self.x4_past
-            + (0.682480660641171) * duty
-            + (-1.08221378337274) * press_err
+            (-0.384411449265331) * self.x4_past + (-1.30467015871265) * duty + (-0.549408061645774) * press_est_err
         )
         self.x5 = (
-            (-0.999974148486798) * self.x5_past
-            + 0.00719250631302813 * self.x6_past
-            + (0.201183210316409) * duty
-            + (1.53503616502204) * press_err
+            0.131101849447955 * self.x5_past
+            + 0.326002234363228 * self.x6_past
+            + (0.249872166084580) * duty
+            + (-0.417498782854124) * press_est_err
         )
         self.x6 = (
-            (-0.00719250631302813) * self.x5_past
-            + (-0.999974148486798) * self.x6_past
-            + (-119.713005405615) * duty
-            + (-1.69464121288180) * press_err
+            (-0.326002234363228) * self.x5_past
+            + 0.131101849447955 * self.x6_past
+            + (1.68659769272441) * duty
+            + (-0.0105720190036861) * press_est_err
         )
 
         self.feedback = (-1) * (
@@ -200,5 +210,5 @@ class Controller:
         self.x5_past = self.x5
         self.x6_past = self.x6
 
-        duty = self.feedback + self.u_steady_state
+        duty = self.feedback + self.u_steady_state + integrated_aug
         return duty

@@ -49,12 +49,13 @@ class TRead(threading.Thread):
 
                 # PID
                 self.controller.press_fb = data.press
-                # self.controller.press_fb_n = self.controller.PressLUT(self.controller.press_fb)
                 self.controller.temp_fb = data.temp_0
-                # self.controller.temp_fb_n = self.controller.TempLUT(data.temp_0)
                 self.sensors.hc.duty = self.controller.PID()
+                # self.controller.press_fb_n = self.controller.PressLUT(self.controller.press_fb)
+                # self.controller.temp_fb_n = self.controller.TempLUT(data.temp_0)
 
                 # SS
+                # self.controller.press_fb = self.controller.PressLUT(data.press)
                 # self.sensors.hc.duty = self.controller.SS(data.timestamp, self.sensors.hc.duty)
 
                 data.timefinished = time.time() - self.start_time
