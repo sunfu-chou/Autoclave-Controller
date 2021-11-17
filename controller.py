@@ -1,26 +1,41 @@
 import bisect
 
 
+# class Controller:
+#     def __init__(self) -> None:
+#         self.press_fb = 0
+#         self.press_setpoint = 0
+#         self.press_int = 0
+
+#     def run(self, timestamp: float, duty: float, ss: float, temp: float = 0) -> float:
+#         pass
+
+
+# class PID(Controller):
+#     def __init__(self) -> None:
+#         super().__init__()
+
+
 class Controller:
     def __init__(self):
         # PID
-        self.press_fb = 0.0
-        self.press_fb_n = 0.0
-        self.temp_fb = 0.0
-        self.temp_fb_n = 0.0
-        self.setpoint_press = 0.0
-        self.integrated_press = 0.0
-        self.error_press = 0.0
-        self.kp_press = 0.2
-        self.ki_press = 0.0003
-        self.kd_press = 0.0
+        # self.press_fb = 0.0
+        # self.press_fb_n = 0.0
+        # self.temp_fb = 0.0
+        # self.temp_fb_n = 0.0
+        # self.setpoint_press = 0.0
+        # self.integrated_press = 0.0
+        # self.error_press = 0.0
+        # self.kp_press = 0.2
+        # self.ki_press = 0.0003
+        # self.kd_press = 0.0
 
-        self.setpoint_temp = 0.0
-        self.integrated_temp = 0.0
-        self.error_temp = 0.0
-        self.kp_temp = 0.5
-        self.ki_temp = 0.000001
-        self.kd_temp = 0.0
+        # self.setpoint_temp = 0.0
+        # self.integrated_temp = 0.0
+        # self.error_temp = 0.0
+        # self.kp_temp = 0.5
+        # self.ki_temp = 0.000001
+        # self.kd_temp = 0.0
 
         self.bp_press = [0.4782, 0.6701, 1.045, 1.6158, 2.3332, 3.4363, 3.8378, 4.3367, 6.4171, 9.4081]
         self.table_press = [-1.7934, -2.2213, -2.6226, -3.2101, -3.78, -4.4052, -4.5385, -4.7455, -5.4985, -6.2973]
@@ -110,23 +125,23 @@ class Controller:
         self.x5_past = 0.0
         self.x6_past = 0.0
 
-    def PID(self):
-        self.error_press = self.setpoint_press - self.press_fb
-        self.integrated_press += self.error_press * 0.25
+    # def PID(self):
+    #     self.error_press = self.setpoint_press - self.press_fb
+    #     self.integrated_press += self.error_press * 0.25
 
-        self.duty = self.kp_press * self.error_press + self.ki_press * self.integrated_press
-        return self.duty
+    #     self.duty = self.kp_press * self.error_press + self.ki_press * self.integrated_press
+    #     return self.duty
 
-    def MISO_PID(self):
-        self.error_press = self.setpoint_press - self.press_fb_n
-        self.integrated_press += self.error_press * 0.25
+    # def MISO_PID(self):
+    #     self.error_press = self.setpoint_press - self.press_fb_n
+    #     self.integrated_press += self.error_press * 0.25
 
-        self.setpoint_temp = self.kp_press * self.error_press + self.ki_press * self.integrated_press
+    #     self.setpoint_temp = self.kp_press * self.error_press + self.ki_press * self.integrated_press
 
-        self.error_temp = self.setpoint_temp - self.temp_fb_n
-        self.integrated_temp += self.error_temp * 0.25
-        self.duty = self.kp_temp * self.error_temp + self.ki_temp * self.integrated_temp
-        return -self.duty
+    #     self.error_temp = self.setpoint_temp - self.temp_fb_n
+    #     self.integrated_temp += self.error_temp * 0.25
+    #     self.duty = self.kp_temp * self.error_temp + self.ki_temp * self.integrated_temp
+    #     return -self.duty
 
     def PressLUT(self, press):
         idx = bisect.bisect_left(self.bp_press, press)
