@@ -4,6 +4,7 @@ import os
 import time
 import threading
 import queue
+import datetime
 
 import data
 
@@ -12,17 +13,19 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 
 
 class TWrite(threading.Thread):
-    def __init__(self, threadID: int, name: str, queue: queue.Queue, filename: str) -> None:
+    def __init__(self, threadID: int, name: str, queue: queue.Queue) -> None:
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.queue = queue
-        name = self.get_file_name(filename)
-        print(name)
-        self.f = open(name, "w")
         self.active = True
-        # print(Data().title())
+
+        self.filename = filename = "./data/" + datetime.datetime.today().strftime("%m%d_%H%M%S") + ".csv"
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        self.f = open(filename, "w")
+        print("file touched:", filename)
         self.f.write(data.Data().title())
+
         self.token = "vMzfHTBmtruTYBaMZHItmwyHhgvGyRwLbRCbyYbdWRdNDdxBx4xrqPDtoIiIkKRWITqLG5JcSfWSLfnA59vsxQ=="
         self.bucket = "Pot"
         self.client = InfluxDBClient(url="http://localhost:8086", token=self.token, org="NTHU")
@@ -47,14 +50,3 @@ class TWrite(threading.Thread):
 
     def kill(self) -> None:
         self.active = False
-
-    def get_file_name(self, old_filename: str, start: int = 1):
-        if os.path.isfile(old_filename):
-            filename = os.path.splitext(old_filename)[0]
-            extension = os.path.splitext(old_filename)[1]
-            new_filename = f"{filename}_{str(start)}{extension}"
-            if os.path.isfile(new_filename):
-                new_filename = self.get_file_name(old_filename, start + 1)
-        else:
-            new_filename = old_filename
-        return new_filename

@@ -47,6 +47,4 @@ class MAX6675:
             return False
 
     def __str__(self) -> str:
-        return "{:d} {} {:08b} {:08b}".format(
-            self.cs, self.available, self._raw_data[0], self._raw_data[1]
-        )
+        return "{:d} {} {:08b} {:08b}".format(self.cs, self.available, self._raw_data[0], self._raw_data[1])

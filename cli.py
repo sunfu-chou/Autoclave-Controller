@@ -39,7 +39,7 @@ class TCli(threading.Thread):
 
                 else:
                     try:
-                        self.sensor_read.controller.setpoint_press = float(self.func)
+                        self.sensor_read.ss_fuzzy.press_fb = float(self.func)
                         print("Press SetPoint is {}".format(self.sensor_read.controller.setpoint_press))
                         print("Press FB is {}".format(self.sensor_read.controller.press_fb))
                         print("Press FB Linear is {}".format(self.sensor_read.controller.press_fb_n))

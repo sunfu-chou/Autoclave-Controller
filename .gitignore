@@ -1,5 +1,3 @@
 .vscode
 __pycache__
-main_thread2_data
-main_thread2_data.old
-data
+venv

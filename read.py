@@ -5,7 +5,7 @@ import datetime
 
 from sensors import Sensors
 from data import Data
-from controller import Controller
+from controller import SS_Fuzzy
 
 
 class TRead(threading.Thread):
@@ -14,7 +14,6 @@ class TRead(threading.Thread):
         threadID: int,
         name: str,
         queue: queue.Queue,
-        sensors: Sensors,
         sample_time: float,
         duration: float,
     ) -> None:
@@ -23,13 +22,15 @@ class TRead(threading.Thread):
         self.name = name
         self.queue = queue
         self.seq = 0
-        self.sensors = sensors
+        self.sensors = Sensors()
         self.start_time = time.time()
         self.duration = duration
         self.sample_time = sample_time
         self.stop_time = self.start_time + self.duration
         self.active = True
-        self.controller = Controller()
+
+        self.ss_fuzzy = SS_Fuzzy()
+        self.ss_fuzzy.setPressSetpoint(6.0)
 
     def run(self) -> None:
         print("Threading {} is starting".format(self.name))
@@ -46,19 +47,17 @@ class TRead(threading.Thread):
                 data.timestamp = now - self.start_time
 
                 data.read(self.sensors)
+                data.press_fuzzy = self.ss_fuzzy.Fuzzy.press_fb
+                data.duty_ss = self.ss_fuzzy.duty_ss
+                data.duty_fuzzy = self.ss_fuzzy.Fuzzy.output
+                data.idx_strategy = self.ss_fuzzy.idx
 
-                # PID
-                # self.controller.press_fb = data.press
-                # self.controller.temp_fb = data.temp_0
-                # self.sensors.hc.duty = self.controller.PID()
-                # self.controller.press_fb_n = self.controller.PressLUT(self.controller.press_fb)
-                # self.controller.temp_fb_n = self.controller.TempLUT(data.temp_0)
-
-                # SS
-                self.controller.press_fb = self.controller.PressLUT(data.press)
-                self.sensors.hc.duty = self.controller.SS(data.timestamp, self.sensors.hc.duty)
+                self.sp = 6.0
+                self.ss_fuzzy.setPressSetpoint(self.sp)
+                self.sensors.hc.duty = self.ss_fuzzy.run(data.timestamp, self.sensors.hc.duty, data.press)
 
                 data.timefinished = time.time() - self.start_time
+
                 if self.seq:
                     self.queue.put(data)
 
@@ -69,3 +68,4 @@ class TRead(threading.Thread):
 
     def kill(self) -> None:
         self.active = False
+        self.sensors.kill()
