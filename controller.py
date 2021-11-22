@@ -146,7 +146,7 @@ class SS(Controller):
         )
 
         self.feedback = (-1) * (
-            +self.K1 * (self.x1 - self.x1_steady_state)
+            + self.K1 * (self.x1 - self.x1_steady_state)
             + self.K2 * (self.x2 - self.x2_steady_state)
             + self.K3 * (self.x3 - self.x3_steady_state)
             + self.K4 * (self.x4 - self.x4_steady_state)
@@ -218,67 +218,20 @@ class Fuzzy(Controller):
         self.duty_revision.defuzzify_method = "centroid"
 
         # 模糊規則
-        self.rule1 = ctrl.Rule(
-            antecedent=((self.p_err["hot6"])),
-            consequent=self.duty_revision["hot6"],
-            label="hot6",
-        )
-        self.rule2 = ctrl.Rule(
-            antecedent=((self.p_err["hot5"])),
-            consequent=self.duty_revision["hot5"],
-            label="hot5",
-        )
-        self.rule3 = ctrl.Rule(
-            antecedent=((self.p_err["hot4"])),
-            consequent=self.duty_revision["hot4"],
-            label="hot4",
-        )
-        self.rule4 = ctrl.Rule(
-            antecedent=((self.p_err["hot3"])),
-            consequent=self.duty_revision["hot3"],
-            label="hot3",
-        )
-        self.rule5 = ctrl.Rule(
-            antecedent=((self.p_err["hot2"])),
-            consequent=self.duty_revision["hot2"],
-            label="hot2",
-        )
-        self.rule6 = ctrl.Rule(
-            antecedent=((self.p_err["hot1"])),
-            consequent=self.duty_revision["hot1"],
-            label="hot1",
-        )
+        self.rule1 = ctrl.Rule(antecedent=((self.p_err["hot6"])),consequent=self.duty_revision["hot6"],label="hot6")
+        self.rule2 = ctrl.Rule(antecedent=((self.p_err["hot5"])),consequent=self.duty_revision["hot5"],label="hot5")
+        self.rule3 = ctrl.Rule(antecedent=((self.p_err["hot4"])),consequent=self.duty_revision["hot4"],label="hot4")
+        self.rule4 = ctrl.Rule(antecedent=((self.p_err["hot3"])),consequent=self.duty_revision["hot3"],label="hot3")
+        self.rule5 = ctrl.Rule(antecedent=((self.p_err["hot2"])),consequent=self.duty_revision["hot2"],label="hot2")
+        self.rule6 = ctrl.Rule(antecedent=((self.p_err["hot1"])),consequent=self.duty_revision["hot1"],label="hot1")
         self.rule7 = ctrl.Rule(antecedent=((self.p_err["mid"])), consequent=self.duty_revision["mid"], label="mid")
-        self.rule8 = ctrl.Rule(
-            antecedent=((self.p_err["cold1"])),
-            consequent=self.duty_revision["cold1"],
-            label="cold1",
-        )
-        self.rule9 = ctrl.Rule(
-            antecedent=((self.p_err["cold2"])),
-            consequent=self.duty_revision["cold2"],
-            label="cold2",
-        )
-        self.rule10 = ctrl.Rule(
-            antecedent=((self.p_err["cold3"])),
-            consequent=self.duty_revision["cold3"],
-            label="cold3",
-        )
-        self.rule11 = ctrl.Rule(
-            antecedent=((self.p_err["cold4"])),
-            consequent=self.duty_revision["cold4"],
-            label="cold4",
-        )
-        self.rule12 = ctrl.Rule(
-            antecedent=((self.p_err["cold5"])),
-            consequent=self.duty_revision["cold5"],
-            label="cold5",
-        )
-        self.rule13 = ctrl.Rule(
-            antecedent=((self.p_err["cold6"])),
-            consequent=self.duty_revision["cold6"],
-            label="cold6",
-        )
+        self.rule8 = ctrl.Rule(antecedent=((self.p_err["cold1"])),consequent=self.duty_revision["cold1"],label="cold1")
+        self.rule9 = ctrl.Rule(antecedent=((self.p_err["cold2"])),consequent=self.duty_revision["cold2"],label="cold2")
+        self.rule10 = ctrl.Rule(antecedent=((self.p_err["cold3"])),consequent=self.duty_revision["cold3"],label="cold3")
+        self.rule11 = ctrl.Rule(antecedent=((self.p_err["cold4"])),consequent=self.duty_revision["cold4"],label="cold4")
+        self.rule12 = ctrl.Rule(antecedent=((self.p_err["cold5"])),consequent=self.duty_revision["cold5"],label="cold5")
+        self.rule13 = ctrl.Rule(antecedent=((self.p_err["cold6"])),consequent=self.duty_revision["cold6"],label="cold6")
+        
         self.press_history = [0 for _ in range(6 * 4)]
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0):
