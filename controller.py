@@ -178,64 +178,106 @@ class Fuzzy(Controller):
         self.output = 0.0
 
         # 參數範圍
-        self.p_err_range = np.arange(-1, 1, 0.01, np.float32)
-        self.duty_revision_range = np.arange(-0.1, 0.1, 0.001, np.float32)
+        self.p_err_range = np.arange(-2, 2, 0.01, np.float32)
+        self.duty_revision_range = np.arange(-0.04, 0.04, 0.0001, np.float32)
 
         # 模糊變數
         self.p_err = ctrl.Antecedent(self.p_err_range, "p_err")
         self.duty_revision = ctrl.Consequent(self.duty_revision_range, "duty_revision")
 
         # 模糊集合&歸屬函數
-        self.p_err["super hot"] = fuzz.trimf(self.p_err_range, [-1, -0.65, -0.2])
-        self.p_err["very hot"] = fuzz.trimf(self.p_err_range, [-1, -0.3, -0.1])
-        self.p_err["little hot"] = fuzz.trimf(self.p_err_range, [-0.2, -0.1, 0])
-        self.p_err["mid"] = fuzz.trimf(self.p_err_range, [-0.1, 0, 0.1])
-        self.p_err["little cold"] = fuzz.trimf(self.p_err_range, [0, 0.1, 0.2])
-        self.p_err["very cold"] = fuzz.trimf(self.p_err_range, [0.1, 0.3, 1])
-        self.p_err["super cold"] = fuzz.trimf(self.p_err_range, [0.2, 0.65, 1])
+        self.p_err["hot6"] = fuzz.trapmf(self.p_err_range, [-3, -3, -1.8, -1.5])
+        self.p_err["hot5"] = fuzz.trimf(self.p_err_range, [-2, -1.6, -0.8])
+        self.p_err["hot4"] = fuzz.trimf(self.p_err_range, [-1, -0.8, -0.6])
+        self.p_err["hot3"] = fuzz.trimf(self.p_err_range, [-0.8, -0.6, -0.4])
+        self.p_err["hot2"] = fuzz.trimf(self.p_err_range, [-0.6, -0.4, -0.2])
+        self.p_err["hot1"] = fuzz.trimf(self.p_err_range, [-0.4, -0.2, 0])
+        self.p_err["mid"] = fuzz.trimf(self.p_err_range, [-0.2, 0, 0.2])
+        self.p_err["cold1"] = fuzz.trimf(self.p_err_range, [0, 0.2, 0.4])
+        self.p_err["cold2"] = fuzz.trimf(self.p_err_range, [0.2, 0.4, 0.6])
+        self.p_err["cold3"] = fuzz.trimf(self.p_err_range, [0.4, 0.6, 0.8])
+        self.p_err["cold4"] = fuzz.trimf(self.p_err_range, [0.6, 0.8, 1])
+        self.p_err["cold5"] = fuzz.trimf(self.p_err_range, [0.8, 1.6, 2])
+        self.p_err["cold6"] = fuzz.trapmf(self.p_err_range, [1.5, 1.8, 3, 3])
 
-        self.duty_revision["super hot"] = fuzz.trimf(self.duty_revision_range, [-0.1, -0.065, -0.02])
-        self.duty_revision["very hot"] = fuzz.trimf(self.duty_revision_range, [-0.1, -0.03, -0.01])
-        self.duty_revision["little hot"] = fuzz.trimf(self.duty_revision_range, [-0.02, -0.01, 0])
-        self.duty_revision["mid"] = fuzz.trimf(self.duty_revision_range, [-0.01, 0, 0.01])
-        self.duty_revision["little cold"] = fuzz.trimf(self.duty_revision_range, [0, 0.01, 0.02])
-        self.duty_revision["very cold"] = fuzz.trimf(self.duty_revision_range, [0.01, 0.03, 0.1])
-        self.duty_revision["super cold"] = fuzz.trimf(self.duty_revision_range, [0.02, 0.065, 0.1])
+        self.duty_revision["hot6"] = fuzz.trapmf(self.duty_revision_range, [-0.06, -0.06, -0.04, -0.032])
+        self.duty_revision["hot5"] = fuzz.trimf(self.duty_revision_range, [-0.06, -0.036, -0.024])
+        self.duty_revision["hot4"] = fuzz.trimf(self.duty_revision_range, [-0.034, -0.02, -0.014])
+        self.duty_revision["hot3"] = fuzz.trimf(self.duty_revision_range, [-0.02, -0.012, -0.008])
+        self.duty_revision["hot2"] = fuzz.trimf(self.duty_revision_range, [-0.012, -0.008, -0.004])
+        self.duty_revision["hot1"] = fuzz.trimf(self.duty_revision_range, [-0.008, -0.004, 0])
+        self.duty_revision["mid"] = fuzz.trimf(self.duty_revision_range, [-0.004, 0, 0.004])
+        self.duty_revision["cold1"] = fuzz.trimf(self.duty_revision_range, [0, 0.004, 0.008])
+        self.duty_revision["cold2"] = fuzz.trimf(self.duty_revision_range, [0.004, 0.008, 0.012])
+        self.duty_revision["cold3"] = fuzz.trimf(self.duty_revision_range, [0.008, 0.012, 0.02])
+        self.duty_revision["cold4"] = fuzz.trimf(self.duty_revision_range, [0.014, 0.02, 0.034])
+        self.duty_revision["cold5"] = fuzz.trimf(self.duty_revision_range, [0.024, 0.036, 0.06])
+        self.duty_revision["cold6"] = fuzz.trapmf(self.duty_revision_range, [0.032, 0.04, 0.06, 0.06])
 
         # 解模糊化——質心法
         self.duty_revision.defuzzify_method = "centroid"
 
         # 模糊規則
         self.rule1 = ctrl.Rule(
-            antecedent=((self.p_err["super hot"])),
-            consequent=self.duty_revision["super hot"],
-            label="super hot",
+            antecedent=((self.p_err["hot6"])),
+            consequent=self.duty_revision["hot6"],
+            label="hot6",
         )
         self.rule2 = ctrl.Rule(
-            antecedent=((self.p_err["very hot"])),
-            consequent=self.duty_revision["very hot"],
-            label="very hot",
+            antecedent=((self.p_err["hot5"])),
+            consequent=self.duty_revision["hot5"],
+            label="hot5",
         )
         self.rule3 = ctrl.Rule(
-            antecedent=((self.p_err["little hot"])),
-            consequent=self.duty_revision["little hot"],
-            label="little hot",
+            antecedent=((self.p_err["hot4"])),
+            consequent=self.duty_revision["hot4"],
+            label="hot4",
         )
-        self.rule4 = ctrl.Rule(antecedent=((self.p_err["mid"])), consequent=self.duty_revision["mid"], label="mid")
+        self.rule4 = ctrl.Rule(
+            antecedent=((self.p_err["hot3"])),
+            consequent=self.duty_revision["hot3"],
+            label="hot3",
+        )
         self.rule5 = ctrl.Rule(
-            antecedent=((self.p_err["little cold"])),
-            consequent=self.duty_revision["little cold"],
-            label="little cold",
+            antecedent=((self.p_err["hot2"])),
+            consequent=self.duty_revision["hot2"],
+            label="hot2",
         )
         self.rule6 = ctrl.Rule(
-            antecedent=((self.p_err["very cold"])),
-            consequent=self.duty_revision["very cold"],
-            label="very cold",
+            antecedent=((self.p_err["hot1"])),
+            consequent=self.duty_revision["hot1"],
+            label="hot1",
         )
-        self.rule7 = ctrl.Rule(
-            antecedent=((self.p_err["super cold"])),
-            consequent=self.duty_revision["super cold"],
-            label="super cold",
+        self.rule7 = ctrl.Rule(antecedent=((self.p_err["mid"])), consequent=self.duty_revision["mid"], label="mid")
+        self.rule8 = ctrl.Rule(
+            antecedent=((self.p_err["cold1"])),
+            consequent=self.duty_revision["cold1"],
+            label="cold1",
+        )
+        self.rule9 = ctrl.Rule(
+            antecedent=((self.p_err["cold2"])),
+            consequent=self.duty_revision["cold2"],
+            label="cold2",
+        )
+        self.rule10 = ctrl.Rule(
+            antecedent=((self.p_err["cold3"])),
+            consequent=self.duty_revision["cold3"],
+            label="cold3",
+        )
+        self.rule11 = ctrl.Rule(
+            antecedent=((self.p_err["cold4"])),
+            consequent=self.duty_revision["cold4"],
+            label="cold4",
+        )
+        self.rule12 = ctrl.Rule(
+            antecedent=((self.p_err["cold5"])),
+            consequent=self.duty_revision["cold5"],
+            label="cold5",
+        )
+        self.rule13 = ctrl.Rule(
+            antecedent=((self.p_err["cold6"])),
+            consequent=self.duty_revision["cold6"],
+            label="cold6",
         )
         self.press_history = [0 for _ in range(6 * 4)]
 
@@ -264,6 +306,12 @@ class Fuzzy(Controller):
                     self.rule5,
                     self.rule6,
                     self.rule7,
+                    self.rule8,
+                    self.rule9,
+                    self.rule10,
+                    self.rule11,
+                    self.rule12,
+                    self.rule13,
                 ]
             )
             sim = ctrl.ControlSystemSimulation(system)
