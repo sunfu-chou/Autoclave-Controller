@@ -97,7 +97,6 @@ class SS(Controller):
         self.x5 = 0.0
         self.x6 = 0.0
         self.feedback = 0.0
-        self.fuzzy_trigger = False
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0) -> float:
 
@@ -138,24 +137,16 @@ class SS(Controller):
         self.x1 = 0.999920615899177 * self.x1_past + 1121.76082548340 * duty + (-0.0429342294059150) * press_est_err
         self.x2 = 0.998226013220742 * self.x2_past + (-1121.48468411130) * duty + (-0.00165406863850045) * press_est_err
         self.x3 = (-0.781914434948315) * self.x3_past + 1.58439928733227 * duty + (-0.222898623775228) * press_est_err
-        self.x4 = (
-            (-0.384411449265332) * self.x4_past + (-1.58739336744947) * duty + (-0.549408061645774) * press_est_err
-        )
+        self.x4 = (-0.384411449265332) * self.x4_past + (-1.58739336744947) * duty + (-0.549408061645774) * press_est_err
         self.x5 = (
-            0.131101849447955 * self.x5_past
-            + 0.326002234363228 * self.x6_past
-            + (-0.0828234008843126) * duty
-            + (-0.417498782854124) * press_est_err
+            0.131101849447955 * self.x5_past + 0.326002234363228 * self.x6_past + (-0.0828234008843126) * duty + (-0.417498782854124) * press_est_err
         )
         self.x6 = (
-            (-0.326002234363228) * self.x5_past
-            + 0.131101849447955 * self.x6_past
-            + (1.89755072155957) * duty
-            + (-0.0105720190036861) * press_est_err
+            (-0.326002234363228) * self.x5_past + 0.131101849447955 * self.x6_past + (1.89755072155957) * duty + (-0.0105720190036861) * press_est_err
         )
 
         self.feedback = (-1) * (
-            self.K1 * (self.x1 - self.x1_steady_state)
+            +self.K1 * (self.x1 - self.x1_steady_state)
             + self.K2 * (self.x2 - self.x2_steady_state)
             + self.K3 * (self.x3 - self.x3_steady_state)
             + self.K4 * (self.x4 - self.x4_steady_state)
