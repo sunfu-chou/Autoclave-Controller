@@ -178,7 +178,7 @@ class Fuzzy(Controller):
         self.output = 0.0
 
         # 參數範圍
-        self.p_err_range = np.arange(-2, 2, 0.01, np.float32)
+        self.p_err_range = np.arange(-1, 1, 0.005, np.float32)
         self.duty_revision_range = np.arange(-0.04, 0.04, 0.0001, np.float32)
 
         # 模糊變數
@@ -186,32 +186,32 @@ class Fuzzy(Controller):
         self.duty_revision = ctrl.Consequent(self.duty_revision_range, "duty_revision")
 
         # 模糊集合&歸屬函數
-        self.p_err["hot6"] = fuzz.trapmf(self.p_err_range, [-3, -3, -1.8, -1.5])
-        self.p_err["hot5"] = fuzz.trimf(self.p_err_range, [-2, -1.6, -0.8])
-        self.p_err["hot4"] = fuzz.trimf(self.p_err_range, [-1, -0.8, -0.6])
-        self.p_err["hot3"] = fuzz.trimf(self.p_err_range, [-0.8, -0.6, -0.4])
-        self.p_err["hot2"] = fuzz.trimf(self.p_err_range, [-0.6, -0.4, -0.2])
-        self.p_err["hot1"] = fuzz.trimf(self.p_err_range, [-0.4, -0.2, 0])
-        self.p_err["mid"] = fuzz.trimf(self.p_err_range, [-0.2, 0, 0.2])
-        self.p_err["cold1"] = fuzz.trimf(self.p_err_range, [0, 0.2, 0.4])
-        self.p_err["cold2"] = fuzz.trimf(self.p_err_range, [0.2, 0.4, 0.6])
-        self.p_err["cold3"] = fuzz.trimf(self.p_err_range, [0.4, 0.6, 0.8])
-        self.p_err["cold4"] = fuzz.trimf(self.p_err_range, [0.6, 0.8, 1])
-        self.p_err["cold5"] = fuzz.trimf(self.p_err_range, [0.8, 1.6, 2])
-        self.p_err["cold6"] = fuzz.trapmf(self.p_err_range, [1.5, 1.8, 3, 3])
+        self.p_err["hot6"] = fuzz.trapmf(self.p_err_range, [-1.5, -1.5, -0.9, -0.75])
+        self.p_err["hot5"] = fuzz.trimf(self.p_err_range, [-0.9, -0.8, -0.3])
+        self.p_err["hot4"] = fuzz.trimf(self.p_err_range, [-0.4, -0.3, -0.2])
+        self.p_err["hot3"] = fuzz.trimf(self.p_err_range, [-0.3, -0.2, -0.2])
+        self.p_err["hot2"] = fuzz.trimf(self.p_err_range, [-0.25, -0.15, -0.05])
+        self.p_err["hot1"] = fuzz.trimf(self.p_err_range, [-0.15, -0.15, 0.1])
+        self.p_err["mid"] = fuzz.trimf(self.p_err_range, [-0.05, 0, 0.05])
+        self.p_err["cold1"] = fuzz.trimf(self.p_err_range, [0.1, 0.15, 0.15])
+        self.p_err["cold2"] = fuzz.trimf(self.p_err_range, [0.05, 0.15, 0.25])
+        self.p_err["cold3"] = fuzz.trimf(self.p_err_range, [0.2, 0.2, 0.3])
+        self.p_err["cold4"] = fuzz.trimf(self.p_err_range, [0.2, 0.3, 0.4])
+        self.p_err["cold5"] = fuzz.trimf(self.p_err_range, [0.3, 0.8, 0.9])
+        self.p_err["cold6"] = fuzz.trapmf(self.p_err_range, [0.75, 0.9, 1.5, 1.5])
 
         self.duty_revision["hot6"] = fuzz.trapmf(self.duty_revision_range, [-0.06, -0.06, -0.04, -0.032])
-        self.duty_revision["hot5"] = fuzz.trimf(self.duty_revision_range, [-0.06, -0.036, -0.024])
-        self.duty_revision["hot4"] = fuzz.trimf(self.duty_revision_range, [-0.034, -0.02, -0.014])
-        self.duty_revision["hot3"] = fuzz.trimf(self.duty_revision_range, [-0.02, -0.012, -0.008])
+        self.duty_revision["hot5"] = fuzz.trimf(self.duty_revision_range, [-0.06, -0.036, -0.03])
+        self.duty_revision["hot4"] = fuzz.trimf(self.duty_revision_range, [-0.06, -0.02, -0.015])
+        self.duty_revision["hot3"] = fuzz.trimf(self.duty_revision_range, [-0.04, -0.012, -0.008])
         self.duty_revision["hot2"] = fuzz.trimf(self.duty_revision_range, [-0.012, -0.008, -0.004])
         self.duty_revision["hot1"] = fuzz.trimf(self.duty_revision_range, [-0.008, -0.004, 0])
         self.duty_revision["mid"] = fuzz.trimf(self.duty_revision_range, [-0.004, 0, 0.004])
         self.duty_revision["cold1"] = fuzz.trimf(self.duty_revision_range, [0, 0.004, 0.008])
         self.duty_revision["cold2"] = fuzz.trimf(self.duty_revision_range, [0.004, 0.008, 0.012])
-        self.duty_revision["cold3"] = fuzz.trimf(self.duty_revision_range, [0.008, 0.012, 0.02])
-        self.duty_revision["cold4"] = fuzz.trimf(self.duty_revision_range, [0.014, 0.02, 0.034])
-        self.duty_revision["cold5"] = fuzz.trimf(self.duty_revision_range, [0.024, 0.036, 0.06])
+        self.duty_revision["cold3"] = fuzz.trimf(self.duty_revision_range, [0.008, 0.012, 0.04])
+        self.duty_revision["cold4"] = fuzz.trimf(self.duty_revision_range, [0.015, 0.02, 0.06])
+        self.duty_revision["cold5"] = fuzz.trimf(self.duty_revision_range, [0.03, 0.036, 0.06])
         self.duty_revision["cold6"] = fuzz.trapmf(self.duty_revision_range, [0.032, 0.04, 0.06, 0.06])
 
         # 解模糊化——質心法
