@@ -308,7 +308,7 @@ class Fuzzy(Controller):
 
             if press_err * self.press_dif >= 0.0:
                 if 0.02 < abs(press_err) < 0.15:
-                    sgn = -1
+                    sgn = -0.75
                 else:
                     sgn = 0
                 
