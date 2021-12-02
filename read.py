@@ -31,7 +31,7 @@ class TRead(threading.Thread):
         self.timestamp = 0.0
 
         self.ss_fuzzy = SS_Fuzzy()
-        self.ss_fuzzy.setPressSetpoint(6.0)
+        self.ss_fuzzy.setPressSetpoint(8.0)
 
     def run(self) -> None:
         print("Threading {} is starting".format(self.name))
@@ -54,7 +54,7 @@ class TRead(threading.Thread):
                 data.duty_fuzzy = self.ss_fuzzy.Fuzzy.output
                 data.idx_strategy = self.ss_fuzzy.idx
 
-                self.sp = 6.0
+                self.sp = 8.0
                 self.ss_fuzzy.setPressSetpoint(self.sp)
                 self.sensors.hc.duty = self.ss_fuzzy.run(data.timestamp, self.sensors.hc.duty, data.press)
 

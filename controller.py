@@ -101,7 +101,7 @@ class SS(Controller):
         self.x5_steady_state = 0.0
         self.x6_steady_state = 0.0
 
-        self.KL = 4.94774704061055e-3
+        self.KL = 4.94774704061055e-2
         self.K1 = 6.850957196992270e-04
         self.K2 = -3.013768145255261e-04
         self.K3 = -2.252202811353843e-06
@@ -216,7 +216,7 @@ class SS(Controller):
 class Fuzzy(Controller):
     def __init__(self) -> None:
         super().__init__()
-        self.setPressSetpoint(6)
+        self.setPressSetpoint(8)
 
         self.press_last = 0.0
         self.press_dif = 0.0
@@ -286,7 +286,7 @@ class Fuzzy(Controller):
         
         self.press_history = [0 for _ in range(6 * 4)]
         
-        self.gain_output = 1
+        self.gain_output = self.setPressSetpoint / 6 * 1
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0):
         sgn = 1
