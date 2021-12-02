@@ -92,14 +92,14 @@ class SS(Controller):
         self.x4_past = 0
         self.x5_past = 0
         self.x6_past = 0
-
-        self.u_steady_state = 0.2446
-        self.x1_steady_state = 3.122e06
-        self.x2_steady_state = -1.396e05
-        self.x3_steady_state = 0.1796
-        self.x4_steady_state = -0.2305
-        self.x5_steady_state = 0.2178
-        self.x6_steady_state = 0.3931
+        
+        self.u_steady_state = 0.0
+        self.x1_steady_state = 0.0
+        self.x2_steady_state = 0.0
+        self.x3_steady_state = 0.0
+        self.x4_steady_state = 0.0
+        self.x5_steady_state = 0.0
+        self.x6_steady_state = 0.0
 
         self.KL = 4.94774704061055e-3
         self.K1 = 6.850957196992270e-04
@@ -130,7 +130,8 @@ class SS(Controller):
 
         if timestamp < 0.2:
             try:
-                x = np.linalg.solve(np.identity(6) - np.array(self.A), np.multiply(np.array(self.B), self.press_fb*self.K_dc))
+                x = np.linalg.solve(np.identity(6) - np.array(self.A), np.multiply(np.array(self.B), self.pressLUT.find(press)*self.K_dc))
+
             except LinAlgError:
                 x = [0 for _ in range(6)]
                 print('solve error')
@@ -193,6 +194,23 @@ class SS(Controller):
         self.x6_past = self.x6
 
         return self.feedback + self.u_steady_state + integrated_aug
+    
+    def setPressSetpoint(self, setpoint):
+        self.u_steady_state = self.pressLUT.find(setpoint) * self.K_dc
+
+        try:
+            x = np.linalg.solve(np.identity(6) - np.array(self.A), np.multiply(np.array(self.B), self.u_steady_state))
+        except LinAlgError:
+            x = [0 for _ in range(6)]
+            print('solve error')
+        
+        self.x1_steady_state = x[0]
+        self.x2_steady_state = x[1]
+        self.x3_steady_state = x[2]
+        self.x4_steady_state = x[3]
+        self.x5_steady_state = x[4]
+        self.x6_steady_state = x[5]
+        super().setPressSetpoint(setpoint)
 
 
 class Fuzzy(Controller):
@@ -200,7 +218,10 @@ class Fuzzy(Controller):
         super().__init__()
         self.setPressSetpoint(6)
 
-        self.control_period = 180.0  # unit: sec
+        self.press_last = 0.0
+        self.press_dif = 0.0
+        
+        self.control_period = 120.0  # unit: sec
 
         self.filter_len = 6.0  # unit: sec
 
@@ -209,8 +230,8 @@ class Fuzzy(Controller):
         self.output = 0.0
 
         # 參數範圍
-        self.p_err_range = np.arange(-1, 1, 0.005, np.float32)
-        self.duty_revision_range = np.arange(-0.04, 0.04, 0.0001, np.float32)
+        self.p_err_range = np.arange(-1, 1, 2/15, np.float32)
+        self.duty_revision_range = np.arange(-0.04, 0.04, 0.0008, np.float32)
 
         # 模糊變數
         self.p_err = ctrl.Antecedent(self.p_err_range, "p_err")
@@ -264,22 +285,29 @@ class Fuzzy(Controller):
         self.rule13 = ctrl.Rule(antecedent=((self.p_err["cold6"])),consequent=self.duty_revision["cold6"],label="cold6")
         
         self.press_history = [0 for _ in range(6 * 4)]
+        
+        self.gain_output = 1
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0):
         self.output = 0.0
-
+        
         for i in range(int(self.filter_len) * 4 - 1):
             self.press_history[i] = self.press_history[i + 1]
         self.press_history[int(self.filter_len) * 4 - 1] = press
         self.press_fb = np.mean(self.press_history)
 
         if timestamp - self.timestamp_last >= self.control_period:
-
             self.timestamp_last = timestamp
+            self.press_dif =  (self.press_fb - self.press_last) / self.control_period
+            self.press_last = self.press_fb
+            
             press_err = self.press_sp - self.press_fb
 
             press_err = _constrain(press_err, -1, 1)
 
+            if press_err * self.press_dif >= 0.0:
+                return self.output
+                
             # 運作
             system = ctrl.ControlSystem(
                 rules=[
@@ -307,7 +335,7 @@ class Fuzzy(Controller):
             except ValueError:
                 print("Error at press err:", press_err)
 
-        return self.output
+        return self.output * self.gain_output
 
 
 class SS_Fuzzy(Controller):

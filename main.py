@@ -1,5 +1,5 @@
 #! python3 
-# sudo python -m debugpy --listen 0.0.0.0:64825 --wait-for-client ./main_thread.py
+# python -m debugpy --listen 0.0.0.0:64825 --wait-for-client ./main.py
 
 import queue
 
