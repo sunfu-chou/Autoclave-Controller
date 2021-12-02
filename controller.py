@@ -307,7 +307,7 @@ class Fuzzy(Controller):
             press_err = _constrain(press_err, -1, 1)
 
             if press_err * self.press_dif >= 0.0:
-                if abs(press_err) < 0.1:
+                if 0.05 < abs(press_err) < 0.1:
                     sgn = -1
                 else:
                     sgn = 0
@@ -358,11 +358,11 @@ class SS_Fuzzy(Controller):
         self.press_fb = press
         press_err = self.press_sp - self.press_fb
 
-        if press_err < -0.05 and self.state_Flag[1] == False:
+        if press_err < 0.1 and self.state_Flag[1] == False:
             self.duty_fuzzy = 0.0
             self.state_Flag[1] = True
 
-        if press_err < -0.05 and self.state_Flag[2] == False:
+        if press_err < 0.1 and self.state_Flag[2] == False:
             self.duty_fuzzy = 0.0
             self.state_Flag[2] = True
 
