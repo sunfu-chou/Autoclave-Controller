@@ -28,6 +28,7 @@ class TRead(threading.Thread):
         self.sample_time = sample_time
         self.stop_time = self.start_time + self.duration
         self.active = True
+        self.timestamp = 0.0
 
         self.ss_fuzzy = SS_Fuzzy()
         self.ss_fuzzy.setPressSetpoint(6.0)
@@ -45,6 +46,7 @@ class TRead(threading.Thread):
                 self.seq += 1
                 data.seq = self.seq
                 data.timestamp = now - self.start_time
+                self.timestamp = data.timestamp
 
                 data.read(self.sensors)
                 data.press_fuzzy = self.ss_fuzzy.Fuzzy.press_fb

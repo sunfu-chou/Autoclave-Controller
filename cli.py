@@ -18,6 +18,7 @@ class TCli(threading.Thread):
         self.value = []
 
         self.active = True
+        self.flag = False
 
     def run(self) -> None:
         print("Threading {} is starting".format(self.name))
@@ -25,6 +26,9 @@ class TCli(threading.Thread):
         try:
             while self.active:
                 print(">", end="")
+                while self.sensor_read.timestamp < 0.5:
+                    pass
+                print("{}, {}", self.sensor_read.ss_fuzzy.SS.u_steady_state, self.sensor_read.ss_fuzzy.SS.x1_past)
                 self.func = input()
                 if self.func == "q":
                     print("quit")

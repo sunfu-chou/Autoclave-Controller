@@ -289,6 +289,7 @@ class Fuzzy(Controller):
         self.gain_output = 1
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0):
+        sgn = 1
         self.output = 0.0
         
         for i in range(int(self.filter_len) * 4 - 1):
@@ -306,7 +307,10 @@ class Fuzzy(Controller):
             press_err = _constrain(press_err, -1, 1)
 
             if press_err * self.press_dif >= 0.0:
-                return self.output
+                if abs(press_err) < 0.1:
+                    sgn = -1
+                else:
+                    sgn = 0
                 
             # 運作
             system = ctrl.ControlSystem(
@@ -335,7 +339,7 @@ class Fuzzy(Controller):
             except ValueError:
                 print("Error at press err:", press_err)
 
-        return self.output * self.gain_output
+        return self.output * self.gain_output * sgn
 
 
 class SS_Fuzzy(Controller):
