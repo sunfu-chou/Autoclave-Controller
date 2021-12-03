@@ -101,7 +101,7 @@ class SS(Controller):
         self.x5_steady_state = 0.0
         self.x6_steady_state = 0.0
 
-        self.KL = 4.94774704061055e-2
+        self.KL = 4.94774704061055e-3
         self.K1 = 6.850957196992270e-04
         self.K2 = -3.013768145255261e-04
         self.K3 = -2.252202811353843e-06
@@ -115,6 +115,9 @@ class SS(Controller):
         self.x5 = 0.0
         self.x6 = 0.0
         self.feedback = 0.0
+        
+        self.antiwindup_fb = 0.0
+        self.output = 0.0
         
         self.filter_len = 4.0 # unit: second
         self.press_history = [0 for _ in range(4*4)]
@@ -157,10 +160,10 @@ class SS(Controller):
             - 0.288206336960354 * self.x6
         )
 
-        press_err = self.u_steady_state - self.press_fb
+        press_err = self.u_steady_state / self.K_dc - self.press_fb
 
-        integrated_press = self.integrated_press_past + self.press_err_past * 0.25  # 積分器
-        integrated_aug = self.KL * integrated_press
+        integrated_press = self.integrated_press_past + self.press_err_past * 0.25 + (-1) * self.antiwindup_fb # 積分器
+        integrated_aug = self.KL * integrated_press * (-1)
 
         self.integrated_press_past = integrated_press
         self.press_err_past = press_err
@@ -192,7 +195,12 @@ class SS(Controller):
         self.x4_past = self.x4
         self.x5_past = self.x5
         self.x6_past = self.x6
-
+        
+        if integrated_aug - duty > 0.0:
+            self.antiwindup_fb = (integrated_aug - duty) * (-218.6)
+        else:
+            self.antiwindup_fb = 0.0
+            
         return self.feedback + self.u_steady_state + integrated_aug
     
     def setPressSetpoint(self, setpoint):
@@ -216,7 +224,7 @@ class SS(Controller):
 class Fuzzy(Controller):
     def __init__(self) -> None:
         super().__init__()
-        self.setPressSetpoint(8)
+        self.setPressSetpoint(8.0)
 
         self.press_last = 0.0
         self.press_dif = 0.0
@@ -286,7 +294,7 @@ class Fuzzy(Controller):
         
         self.press_history = [0 for _ in range(6 * 4)]
         
-        self.gain_output = self.setPressSetpoint / 6 * 1
+        self.gain_output = 1
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0):
         sgn = 1
