@@ -131,34 +131,35 @@ class SS(Controller):
         
         self.press_fb = self.pressLUT.find(self.press_fb)
 
-        if timestamp < 0.2:
+        if press > 0.5:
             try:
-                x = np.linalg.solve(np.identity(6) - np.array(self.A), np.multiply(np.array(self.B), self.pressLUT.find(press)*self.K_dc))
+                x_initial = np.linalg.solve(np.identity(6) - np.array(self.A), np.multiply(np.array(self.B), self.pressLUT.find(press)*self.K_dc))
 
             except LinAlgError:
-                x = [0 for _ in range(6)]
+                x_initial = [0 for _ in range(6)]
                 print('solve error')
 
-            self.x1_past = x[0]
-            self.x2_past = x[1]
-            self.x3_past = x[2]
-            self.x4_past = x[3]
-            self.x5_past = x[4]
-            self.x6_past = x[5]
+            self.x1_past = x_initial[0]
+            self.x2_past = x_initial[1]
+            self.x3_past = x_initial[2]
+            self.x4_past = x_initial[3]
+            self.x5_past = x_initial[4]
+            self.x6_past = x_initial[5]
             self.x1 = 0
             self.x2 = 0
             self.x3 = 0
             self.x4 = 0
             self.x5 = 0
             self.x6 = 0
-        press_estimate = (
-            - 1.612876133705310e-06 * self.x1
-            - 1.388759709639552e-06 * self.x2
-            + 0.035875457390861 * self.x3
-            + 0.347498852399868 * self.x4
-            - 0.030532189729400 * self.x5
-            - 0.288206336960354 * self.x6
-        )
+        #press_estimate = (
+        #    -1.785429559949051e-06 * self.x1
+        #    -1.538188648786409e-06 * self.x2
+        #    + 0.043444720848727 * self.x3
+        #    + 0.422802169431222 * self.x4
+        #    -0.094251832344132 * self.x5
+        #    -0.308791157256229 * self.x6
+        #    + 1 * duty
+        #)
 
         press_err = self.u_steady_state / self.K_dc - self.press_fb
 
@@ -167,19 +168,33 @@ class SS(Controller):
 
         self.integrated_press_past = integrated_press
         self.press_err_past = press_err
+        
+        #try:
+        #    x_now = np.linalg.solve(np.identity(6) - np.array(self.A), np.multiply(np.array(self.B), self.pressLUT.find(press)*self.K_dc))
 
-        press_est_err = press_estimate - self.press_fb  # 估測器誤差回授
-
-        self.x1 = 0.999920615899239 * self.x1_past + 1013.34788210607 * duty + (-0.0429342294059150) * press_est_err
-        self.x2 = 0.998226013220676 * self.x2_past + (-1012.53688592551) * duty + (-0.00165406863850045) * press_est_err
-        self.x3 = (-0.781914434948314) * self.x3_past + 1.30835342044720 * duty + (-0.222898623775228) * press_est_err
-        self.x4 = (-0.384411449265331) * self.x4_past + (-1.30467015871265) * duty + (-0.549408061645774) * press_est_err
+        #except LinAlgError:
+        #    x_now = [0 for _ in range(6)]
+        #    print('solve error')
+        #if self.press_fb > -1.7935:
+        # press_est_err = press_estimate - self.press_fb  # 估測器誤差回授
+        self.x1 = 0.999920615899239 * self.x1_past + 1013.34788210607 * duty  # + (-0.0429342294059150)  * (self.x1_past - x_now[0])
+        self.x2 = 0.998226013220676 * self.x2_past + (-1012.53688592551) * duty  # + (-0.00165406863850045)  *  (self.x2_past - x_now[1])
+        self.x3 = (-0.781914434948314) * self.x3_past + 1.30835342044720 * duty  # + (-0.222898623775228)  *  (self.x3_past - x_now[2])
+        self.x4 = (-0.384411449265331) * self.x4_past + (-1.30467015871265) * duty  # + (-0.549408061645774)  *  (self.x4_past - x_now[3])
         self.x5 = (
-            0.131101849447955 * self.x5_past + 0.326002234363228 * self.x6_past + (0.249872166084580) * duty + (-0.417498782854124) * press_est_err
+            0.131101849447955 * self.x5_past + 0.326002234363228 * self.x6_past + (0.249872166084580) * duty  # + (-0.417498782854124)  *  (self.x5_past - x_now[4])
         )
         self.x6 = (
-            (-0.326002234363228) * self.x5_past + 0.131101849447955 * self.x6_past + (1.68659769272441) * duty + (-0.0105720190036861) * press_est_err
+            (-0.326002234363228) * self.x5_past + 0.131101849447955 * self.x6_past + (1.68659769272441) * duty  # + (-0.0105720190036861)  *  (self.x6_past - x_now[5])
         )
+ 
+        #else:
+        #    self.x1 = x_now[0]
+        #    self.x2 = x_now[1]
+        #    self.x3 = x_now[2]
+        #    self.x4 = x_now[3]
+        #    self.x5 = x_now[4]
+        #    self.x6 = x_now[5]
 
         self.feedback = (-1) * (
             + self.K1 * (self.x1 - self.x1_steady_state)
@@ -196,11 +211,17 @@ class SS(Controller):
         self.x5_past = self.x5
         self.x6_past = self.x6
         
+        #if abs(duty - self.u_steady_state) > 0.001:
+        #    self.feedback = 0.0
+        
         if integrated_aug - duty > 0.0:
-            self.antiwindup_fb = (integrated_aug - duty) * (-21.86)
+            self.antiwindup_fb = (integrated_aug - duty) * (-218.6)
         else:
             self.antiwindup_fb = 0.0
             
+        if press <= 0.5:
+            self.feedback = 1.0
+        
         return self.feedback + self.u_steady_state + integrated_aug
     
     def setPressSetpoint(self, setpoint):
@@ -299,8 +320,8 @@ class Fuzzy(Controller):
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0):
         sgn = 1
         self.output = 0.0
-        trigger_dev_range = self.press_sp * 0.05 #觸發預修正的範圍
-        trigger_dev_closed = self.press_sp * 0.005 #停止預修正的範圍
+        trigger_dev_range = self.press_sp / 12 #觸發預修正的範圍
+        trigger_dev_closed = self.press_sp / 200 #停止預修正的範圍
         
         for i in range(int(self.filter_len) * 4 - 1):
             self.press_history[i] = self.press_history[i + 1]
@@ -367,7 +388,7 @@ class SS_Fuzzy(Controller):
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0) -> float:
         self.press_fb = press
         press_err = self.press_sp - self.press_fb
-        trigger_range = self.press_sp / 15
+        trigger_range = self.press_sp / 10 #定義觸發範圍
 
         if press_err < trigger_range and self.state_Flag[1] == False:
             self.duty_fuzzy = 0.0
