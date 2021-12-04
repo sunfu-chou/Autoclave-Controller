@@ -299,6 +299,8 @@ class Fuzzy(Controller):
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0):
         sgn = 1
         self.output = 0.0
+        trigger_dev_range = self.press_sp * 0.05 #觸發預修正的範圍
+        trigger_dev_closed = self.press_sp * 0.005 #停止預修正的範圍
         
         for i in range(int(self.filter_len) * 4 - 1):
             self.press_history[i] = self.press_history[i + 1]
@@ -315,7 +317,7 @@ class Fuzzy(Controller):
             press_err = _constrain(press_err, -1, 1)
 
             if press_err * self.press_dif >= 0.0:
-                if 0.02 < abs(press_err) < 0.3:
+                if trigger_dev_closed < abs(press_err) < trigger_dev_range:
                     sgn = -0.75
                 else:
                     sgn = 0
@@ -365,12 +367,13 @@ class SS_Fuzzy(Controller):
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0) -> float:
         self.press_fb = press
         press_err = self.press_sp - self.press_fb
+        trigger_range = self.press_sp / 15
 
-        if press_err < 0.5 and self.state_Flag[1] == False:
+        if press_err < trigger_range and self.state_Flag[1] == False:
             self.duty_fuzzy = 0.0
             self.state_Flag[1] = True
 
-        if press_err < 0.5 and self.state_Flag[2] == False:
+        if press_err < trigger_range and self.state_Flag[2] == False:
             self.duty_fuzzy = 0.0
             self.state_Flag[2] = True
 
