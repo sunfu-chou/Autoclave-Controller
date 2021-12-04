@@ -101,7 +101,7 @@ class SS(Controller):
         self.x5_steady_state = 0.0
         self.x6_steady_state = 0.0
 
-        self.KL = 4.94774704061055e-3
+        self.KL = 4.94774704061055e-2
         self.K1 = 6.850957196992270e-04
         self.K2 = -3.013768145255261e-04
         self.K3 = -2.252202811353843e-06
@@ -197,7 +197,7 @@ class SS(Controller):
         self.x6_past = self.x6
         
         if integrated_aug - duty > 0.0:
-            self.antiwindup_fb = (integrated_aug - duty) * (-218.6)
+            self.antiwindup_fb = (integrated_aug - duty) * (-21.86)
         else:
             self.antiwindup_fb = 0.0
             
@@ -315,7 +315,7 @@ class Fuzzy(Controller):
             press_err = _constrain(press_err, -1, 1)
 
             if press_err * self.press_dif >= 0.0:
-                if 0.02 < abs(press_err) < 0.15:
+                if 0.02 < abs(press_err) < 0.3:
                     sgn = -0.75
                 else:
                     sgn = 0
@@ -366,11 +366,11 @@ class SS_Fuzzy(Controller):
         self.press_fb = press
         press_err = self.press_sp - self.press_fb
 
-        if press_err < 0.15 and self.state_Flag[1] == False:
+        if press_err < 0.5 and self.state_Flag[1] == False:
             self.duty_fuzzy = 0.0
             self.state_Flag[1] = True
 
-        if press_err < 0.15 and self.state_Flag[2] == False:
+        if press_err < 0.5 and self.state_Flag[2] == False:
             self.duty_fuzzy = 0.0
             self.state_Flag[2] = True
 
