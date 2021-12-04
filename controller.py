@@ -152,12 +152,13 @@ class SS(Controller):
             self.x5 = 0
             self.x6 = 0
         press_estimate = (
-            - 1.612876133705310e-06 * self.x1
-            - 1.388759709639552e-06 * self.x2
-            + 0.035875457390861 * self.x3
-            + 0.347498852399868 * self.x4
-            - 0.030532189729400 * self.x5
-            - 0.288206336960354 * self.x6
+            -1.785429559949051e-06 * self.x1
+            -1.538188648786409e-06 * self.x2
+            + 0.043444720848727 * self.x3
+            + 0.422802169431222 * self.x4
+            -0.094251832344132 * self.x5
+            -0.308791157256229 * self.x6
+            + 1 * duty
         )
 
         press_err = self.u_steady_state / self.K_dc - self.press_fb
