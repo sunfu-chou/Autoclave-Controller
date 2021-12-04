@@ -171,15 +171,15 @@ class SS(Controller):
 
         press_est_err = press_estimate - self.press_fb  # 估測器誤差回授
 
-        self.x1 = 0.999920615899239 * self.x1_past + 1013.34788210607 * duty + (-0.0429342294059150) * press_est_err
-        self.x2 = 0.998226013220676 * self.x2_past + (-1012.53688592551) * duty + (-0.00165406863850045) * press_est_err
-        self.x3 = (-0.781914434948314) * self.x3_past + 1.30835342044720 * duty + (-0.222898623775228) * press_est_err
-        self.x4 = (-0.384411449265331) * self.x4_past + (-1.30467015871265) * duty + (-0.549408061645774) * press_est_err
+        self.x1 = 0.999920615899239 * self.x1_past + 1013.34788210607 * duty + (-3381013.11976722) * press_est_err
+        self.x2 = 0.998226013220676 * self.x2_past + (-1012.53688592551) * duty + (3749604.01183078) * press_est_err
+        self.x3 = (-0.781914434948314) * self.x3_past + 1.30835342044720 * duty + (-1.30917661170718) * press_est_err
+        self.x4 = (-0.384411449265331) * self.x4_past + (-1.30467015871265) * duty + (0.0277446049303579) * press_est_err
         self.x5 = (
-            0.131101849447955 * self.x5_past + 0.326002234363228 * self.x6_past + (0.249872166084580) * duty + (-0.417498782854124) * press_est_err
+            0.131101849447955 * self.x5_past + 0.326002234363228 * self.x6_past + (0.249872166084580) * duty + (-0.604105128861116) * press_est_err
         )
         self.x6 = (
-            (-0.326002234363228) * self.x5_past + 0.131101849447955 * self.x6_past + (1.68659769272441) * duty + (-0.0105720190036861) * press_est_err
+            (-0.326002234363228) * self.x5_past + 0.131101849447955 * self.x6_past + (1.68659769272441) * duty + (-1.01450548771866) * press_est_err
         )
 
         self.feedback = (-1) * (
