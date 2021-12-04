@@ -101,7 +101,7 @@ class SS(Controller):
         self.x5_steady_state = 0.0
         self.x6_steady_state = 0.0
 
-        self.KL = 4.94774704061055e-2
+        self.KL = 4.94774704061055e-3
         self.K1 = 6.850957196992270e-04
         self.K2 = -3.013768145255261e-04
         self.K3 = -2.252202811353843e-06
@@ -121,6 +121,8 @@ class SS(Controller):
         
         self.filter_len = 4.0 # unit: second
         self.press_history = [0 for _ in range(4*4)]
+        
+        self.ss_flag = True
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0) -> float:
         
@@ -131,7 +133,8 @@ class SS(Controller):
         
         self.press_fb = self.pressLUT.find(self.press_fb)
 
-        if press > 0.5:
+        if press > 0.0 and self.ss_flag == True:
+            self.ss_flag = False
             try:
                 x_initial = np.linalg.solve(np.identity(6) - np.array(self.A), np.multiply(np.array(self.B), self.pressLUT.find(press)*self.K_dc))
 
@@ -151,15 +154,14 @@ class SS(Controller):
             self.x4 = 0
             self.x5 = 0
             self.x6 = 0
-        #press_estimate = (
-        #    -1.785429559949051e-06 * self.x1
-        #    -1.538188648786409e-06 * self.x2
-        #    + 0.043444720848727 * self.x3
-        #    + 0.422802169431222 * self.x4
-        #    -0.094251832344132 * self.x5
-        #    -0.308791157256229 * self.x6
-        #    + 1 * duty
-        #)
+        press_estimate = (
+            - 1.612876133705310e-06 * self.x1
+            - 1.388759709639552e-06 * self.x2
+            + 0.035875457390861 * self.x3
+            + 0.347498852399868 * self.x4
+            - 0.030532189729400 * self.x5
+            - 0.288206336960354 * self.x6
+        )
 
         press_err = self.u_steady_state / self.K_dc - self.press_fb
 
@@ -176,16 +178,16 @@ class SS(Controller):
         #    x_now = [0 for _ in range(6)]
         #    print('solve error')
         #if self.press_fb > -1.7935:
-        # press_est_err = press_estimate - self.press_fb  # 估測器誤差回授
-        self.x1 = 0.999920615899239 * self.x1_past + 1013.34788210607 * duty  # + (-0.0429342294059150)  * (self.x1_past - x_now[0])
-        self.x2 = 0.998226013220676 * self.x2_past + (-1012.53688592551) * duty  # + (-0.00165406863850045)  *  (self.x2_past - x_now[1])
-        self.x3 = (-0.781914434948314) * self.x3_past + 1.30835342044720 * duty  # + (-0.222898623775228)  *  (self.x3_past - x_now[2])
-        self.x4 = (-0.384411449265331) * self.x4_past + (-1.30467015871265) * duty  # + (-0.549408061645774)  *  (self.x4_past - x_now[3])
+        press_est_err = press_estimate - self.press_fb  # 估測器誤差回授
+        self.x1 = 0.999920615899239 * self.x1_past + 1013.34788210607 * duty   + (-0.0429342294059150)  * press_est_err
+        self.x2 = 0.998226013220676 * self.x2_past + (-1012.53688592551) * duty   + (-0.00165406863850045)  *press_est_err
+        self.x3 = (-0.781914434948314) * self.x3_past + 1.30835342044720 * duty   + (-0.222898623775228)  *  press_est_err
+        self.x4 = (-0.384411449265331) * self.x4_past + (-1.30467015871265) * duty   + (-0.549408061645774)  *  press_est_err
         self.x5 = (
-            0.131101849447955 * self.x5_past + 0.326002234363228 * self.x6_past + (0.249872166084580) * duty  # + (-0.417498782854124)  *  (self.x5_past - x_now[4])
+            0.131101849447955 * self.x5_past + 0.326002234363228 * self.x6_past + (0.249872166084580) * duty   + (-0.417498782854124)  *  press_est_err
         )
         self.x6 = (
-            (-0.326002234363228) * self.x5_past + 0.131101849447955 * self.x6_past + (1.68659769272441) * duty  # + (-0.0105720190036861)  *  (self.x6_past - x_now[5])
+            (-0.326002234363228) * self.x5_past + 0.131101849447955 * self.x6_past + (1.68659769272441) * duty   + (-0.0105720190036861)  * press_est_err
         )
  
         #else:
@@ -219,8 +221,9 @@ class SS(Controller):
         else:
             self.antiwindup_fb = 0.0
             
-        if press <= 0.5:
+        if press <= 0.0:
             self.feedback = 1.0
+            integrated_aug = 0.0
         
         return self.feedback + self.u_steady_state + integrated_aug
     
