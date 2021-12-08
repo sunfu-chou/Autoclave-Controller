@@ -41,7 +41,7 @@ class TWrite(threading.Thread):
                     self.f.write(data.__str__())
                     self.write_api.write(bucket=self.bucket, record=data.to_point())
 
-                time.sleep(2)
+                time.sleep(1)
             self.f.close()
         except KeyboardInterrupt:
             self.f.close()

@@ -3,9 +3,9 @@ import pigpio
 
 
 class MAX6675:
-    def __init__(self, cs) -> None:
+    def __init__(self, pi, cs) -> None:
         self.cs = cs
-        self.pi = pigpio.pi()
+        self.pi = pi
         self.sensor = self.pi.spi_open(cs, 1000000, 0)
         self.t = time.time()
         self._temp = 0.0
@@ -14,7 +14,6 @@ class MAX6675:
 
     def kill(self) -> None:
         self.pi.spi_close(self.sensor)
-        self.pi.stop()
 
     @property
     def read(self) -> float:

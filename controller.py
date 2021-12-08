@@ -3,7 +3,6 @@ from numpy.linalg import LinAlgError
 import skfuzzy as fuzz
 import numpy as np
 import skfuzzy.control as ctrl
-import time
 from heater_controller import _constrain
 
 
@@ -122,7 +121,9 @@ class SS(Controller):
         self.filter_len = 4.0 # unit: second
         self.press_history = [0 for _ in range(4*4)]
         
+        self.x_initial = 0
         self.ss_flag = True
+        self.press_fb_l = 0.0
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0) -> float:
         
@@ -130,24 +131,23 @@ class SS(Controller):
             self.press_history[i] = self.press_history[i + 1]
         self.press_history[int(self.filter_len) * 4 - 1] = press
         self.press_fb = np.mean(self.press_history)
-        
-        self.press_fb = self.pressLUT.find(self.press_fb)
+        self.press_fb_l = self.pressLUT.find(self.press_fb)
 
-        if press > 0.0 and self.ss_flag == True:
+        if self.press_fb > 0.5 and self.ss_flag == True:
             self.ss_flag = False
             try:
-                x_initial = np.linalg.solve(np.identity(6) - np.array(self.A), np.multiply(np.array(self.B), self.pressLUT.find(press)*self.K_dc))
+                self.x_initial = np.linalg.solve(np.identity(6) - np.array(self.A), np.multiply(np.array(self.B), self.press_fb_l * self.K_dc))
 
             except LinAlgError:
-                x_initial = [0 for _ in range(6)]
+                self.x_initial = [0 for _ in range(6)]
                 print('solve error')
 
-            self.x1_past = x_initial[0]
-            self.x2_past = x_initial[1]
-            self.x3_past = x_initial[2]
-            self.x4_past = x_initial[3]
-            self.x5_past = x_initial[4]
-            self.x6_past = x_initial[5]
+            self.x1_past = self.x_initial[0]
+            self.x2_past = self.x_initial[1]
+            self.x3_past = self.x_initial[2]
+            self.x4_past = self.x_initial[3]
+            self.x5_past = self.x_initial[4]
+            self.x6_past = self.x_initial[5]
             self.x1 = 0
             self.x2 = 0
             self.x3 = 0
@@ -164,7 +164,7 @@ class SS(Controller):
             - 0.288206336960354 * self.x6
         )
 
-        press_err = self.u_steady_state / self.K_dc - self.press_fb
+        press_err = self.u_steady_state / self.K_dc - self.press_fb_l
 
         integrated_press = self.integrated_press_past + self.press_err_past * 0.25 + (-1) * self.antiwindup_fb # 積分器
         integrated_aug = self.KL * integrated_press * (-1)
@@ -179,7 +179,7 @@ class SS(Controller):
         #    x_now = [0 for _ in range(6)]
         #    print('solve error')
         #if self.press_fb > -1.7935:
-        press_est_err = press_estimate - self.press_fb  # 估測器誤差回授
+        press_est_err = press_estimate - self.press_fb_l  # 估測器誤差回授
         self.x1 = 0.999920615899239 * self.x1_past + 1013.34788210607 * duty   + (-0.0429342294059150)  * press_est_err
         self.x2 = 0.998226013220676 * self.x2_past + (-1012.53688592551) * duty   + (-0.00165406863850045)  *press_est_err
         self.x3 = (-0.781914434948314) * self.x3_past + 1.30835342044720 * duty   + (-0.222898623775228)  *  press_est_err
@@ -222,7 +222,7 @@ class SS(Controller):
         else:
             self.antiwindup_fb = 0.0
             
-        if press <= 0.0:
+        if press <= 0.5:
             self.feedback = 1.0
             integrated_aug = 0.0
         
@@ -249,7 +249,7 @@ class SS(Controller):
 class Fuzzy(Controller):
     def __init__(self) -> None:
         super().__init__()
-        self.setPressSetpoint(8.0)
+        self.setPressSetpoint(6.0)
 
         self.press_last = 0.0
         self.press_dif = 0.0
