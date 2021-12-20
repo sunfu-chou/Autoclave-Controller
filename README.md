@@ -4,9 +4,16 @@ Ubuntu 20.04
 
 ## Run
 
+just run controller
 ```
 python main.py
 ```
+run and debug
+```
+python -m debugpy --listen 0.0.0.0:64825 --wait-for-client ./main.py
+```
+
+then open debug client on local computer
 
 ## Preparation
 1. install pigpio
@@ -32,4 +39,18 @@ and run
 
 ```
 sudo systemctl enable pigpiod.service
+```
+
+
+## Grafana
+
+### Connect
+```
+ubuntu.local:3000
+```
+
+## InfluxDB
+### Connect
+```
+ubuntu.local:8086
 ```
