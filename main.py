@@ -1,4 +1,4 @@
-#! python3 
+#! python3
 # python -m debugpy --listen 0.0.0.0:64825 --wait-for-client ./main.py
 
 import queue

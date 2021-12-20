@@ -12,6 +12,8 @@ from heater_controller import HeaterController
 
 
 class Sensors:
+    """An integration for all sensor
+    """
     def __init__(self) -> None:
         self.pi = pigpio.pi()
         self.max_0 = MAX6675(self.pi, 0)
@@ -24,6 +26,11 @@ class Sensors:
         self.hc.start(0.0)
 
     def read(self) -> typing.Tuple[float, float, float, float, float]:
+        """To read all sensor data
+
+        Returns:
+            typing.Tuple[float, float, float, float, float]: temperature 0, temperature 1, ADC Volt 0, ADC Volt 1, Output dutucycle 1
+        """
         return (
             float(self.max_0.read),
             float(self.max_1.read),
@@ -33,6 +40,8 @@ class Sensors:
         )
 
     def kill(self) -> None:
+        """To stop all sensors
+        """
         self.max_0.kill()
         self.max_1.kill()
         self.hc.kill()

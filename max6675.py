@@ -3,7 +3,15 @@ import pigpio
 
 
 class MAX6675:
-    def __init__(self, pi, cs) -> None:
+    "An implemetation for communication to MAX6675"
+
+    def __init__(self, pi: pigpio.pi, cs: int = 0) -> None:
+        """The init method of MAX6675
+
+        Args:
+            pi (pigpio.pi): pigpio handler
+            cs (int, optional): chip select channel. Defaults to 0.
+        """
         self.cs = cs
         self.pi = pi
         self.sensor = self.pi.spi_open(cs, 1000000, 0)
@@ -13,10 +21,17 @@ class MAX6675:
         self.read
 
     def kill(self) -> None:
+        """To stop MAX6675
+        """
         self.pi.spi_close(self.sensor)
 
     @property
     def read(self) -> float:
+        """To read MAX6675 temperature
+
+        Returns:
+            float: The temperature MAX6675 read
+        """
         if time.time() - self.t < 0.22:
             return self._temp
         self.t = time.time()
@@ -30,6 +45,11 @@ class MAX6675:
 
     @property
     def available(self) -> bool:
+        """To check if data is available
+
+        Returns:
+            bool: Is data available
+        """
         if (self._temp & 0x8006) == 0:
             return True
         if self._raw_data[0] & 0x80:

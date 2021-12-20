@@ -6,7 +6,15 @@ import datetime
 
 
 class Data:
-    def __init__(self, now=datetime.datetime.utcnow(), sensors: Sensors = Sensors()) -> None:
+    """An encapsulation of all data."""
+
+    def __init__(self, now: float = datetime.datetime.utcnow(), sensors: Sensors = Sensors()) -> None:
+        """[summary]
+
+        Args:
+            now (float, optional): Now time. Defaults to datetime.datetime.utcnow().
+            sensors (Sensors, optional): Sensor class. Defaults to Sensors().
+        """
         self.seq = 0
         self.timestamp = 0.0
         self.temp_0 = 0.0
@@ -47,6 +55,11 @@ class Data:
         )
 
     def title(self) -> str:
+        """Return title string for csv
+
+        Returns:
+            str: title string
+        """
         return "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}\n".format(
             "seq",
             "timestamp",
@@ -67,6 +80,11 @@ class Data:
         )
 
     def read(self, sensors: Sensors) -> None:
+        """To read all data
+
+        Args:
+            sensors (Sensors): Sensor Class for read data.
+        """
         (
             self.raw_temp_0,
             self.raw_temp_1,
@@ -81,6 +99,14 @@ class Data:
         self.volt_in = float(self.raw_volt_1)
 
     def to_point(self, measurement: str = "Pot") -> Point:
+        """Convert data to Influx poing
+
+        Args:
+            measurement (str, optional): InfluxDB measurement. Defaults to "Pot".
+
+        Returns:
+            Point: InfluxDB point
+        """
         return (
             Point(measurement)
             .field("seq", self.seq)

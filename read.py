@@ -9,14 +9,25 @@ from controller import SS_Fuzzy
 
 
 class TRead(threading.Thread):
+    """A thread for reading data and controlling in 4Hz(period 0.25s)
+    """
     def __init__(
         self,
         threadID: int,
         name: str,
         queue: queue.Queue,
-        sample_time: float,
-        duration: float,
+        sample_time: float = 0.25,
+        duration: float = 0,
     ) -> None:
+        """The init method of reading Thread
+
+        Args:
+            threadID (int): Thread ID
+            name (str): Thread name
+            queue (queue.Queue): Data for communication between Threads
+            sample_time (float, optional): The sample period for reading data and controlling. Defaults to 0.25.
+            duration (float, optional): Heatint duration. Defaults to 0.
+        """
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
@@ -34,6 +45,8 @@ class TRead(threading.Thread):
         self.ss_fuzzy.setPressSetpoint(6.0)
 
     def run(self) -> None:
+        """(Thread) Run
+        """
         print("Threading {} is starting".format(self.name))
         try:
             while self.active:
@@ -69,5 +82,7 @@ class TRead(threading.Thread):
         print("Threading {} is exiting".format(self.name))
 
     def kill(self) -> None:
+        """(Thread) kill
+        """
         self.active = False
         self.sensors.kill()

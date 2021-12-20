@@ -13,7 +13,16 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 
 
 class TWrite(threading.Thread):
+    """A thread for writing data to csv and database(InfluxDB)
+    """
     def __init__(self, threadID: int, name: str, queue: queue.Queue) -> None:
+        """The init method of writing Thread
+
+        Args:
+            threadID (int): Thread ID
+            name (str): Thread name
+            queue (queue.Queue): Data for communication between Threads
+        """
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
@@ -32,6 +41,8 @@ class TWrite(threading.Thread):
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
 
     def run(self) -> None:
+        """(Thread) Run
+        """
         print("Threading {} is starting".format(self.name))
 
         try:
@@ -49,4 +60,6 @@ class TWrite(threading.Thread):
         print("Threading {} is exiting".format(self.name))
 
     def kill(self) -> None:
+        """(Thread) Kill
+        """
         self.active = False

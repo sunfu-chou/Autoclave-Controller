@@ -1,26 +1,3 @@
-"""heater_controller.py
-    Brief:
-        An inplementation of pigpio for control pwm in non-blocking mode.
-    
-         _____
-        /  /::\       ___           ___
-       /  /:/\:\     /  /\         /  /\
-      /  /:/  \:\   /  /:/        /  /:/
-     /__/:/ \__\:| /__/::\       /  /:/
-     \  \:\ /  /:/ \__\/\:\__   /  /::\
-      \  \:\  /:/     \  \:\/\ /__/:/\:\
-       \  \:\/:/       \__\::/ \__\/  \:\
-        \  \::/        /__/:/       \  \:\
-         \__\/         \__\/         \__\/
-    
-    Author:
-        sunfu.chou (sunfu.chou@gmail.com)
-    Version:
-        0.2.1
-    Date:
-        2021-05-27
-
-"""
 import pigpio
 
 
@@ -43,7 +20,7 @@ def _constrain(num, min, max):
 
 
 class HeaterController:
-    """A encapsulation of pigpio for control pwm in non-blocking mode."""
+    """An encapsulation of pigpio for control pwm in non-blocking mode."""
 
     # The max value of duty cycle range.
     DUTY_RANGE = int(1e6)
@@ -66,6 +43,8 @@ class HeaterController:
         self.pi.callback(self._pin, pigpio.RISING_EDGE, self._callback)
 
     def kill(self) -> None:
+        """To stop heater controller
+        """
         self.stop()
 
     def _callback(self, pin: int = None, level: int = None, tick: int = None) -> int:

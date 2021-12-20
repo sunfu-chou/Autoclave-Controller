@@ -6,7 +6,17 @@ from write import TWrite
 
 
 class TCli(threading.Thread):
+    """A Thread to implement Command Line Interface(CLI)
+    """
     def __init__(self, threadID: int, name: str, read: TRead, write: TWrite) -> None:
+        """The init method of CLI Thread
+
+        Args:
+            threadID (int): Thread ID
+            name (str): Thread name
+            read (TRead): Reading Thread
+            write (TWrite): Writing Thread
+        """
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
@@ -21,6 +31,8 @@ class TCli(threading.Thread):
         self.flag = False
 
     def run(self) -> None:
+        """(Thread) Run
+        """
         print("Threading {} is starting".format(self.name))
 
         try:
@@ -35,11 +47,6 @@ class TCli(threading.Thread):
                     self.sensor_read.kill()
                     self.write_db.kill()
                     self.kill()
-                elif self.func == "w":
-                    print("press kp is {}".format(self.sensor_read.controller.kp_press))
-                    print("press ki is {}".format(self.sensor_read.controller.ki_press))
-                    print("temp kp is {}".format(self.sensor_read.controller.kp_temp))
-                    print("temp ki is {}".format(self.sensor_read.controller.ki_temp))
 
                 else:
                     try:
@@ -52,4 +59,6 @@ class TCli(threading.Thread):
             pass
 
     def kill(self) -> None:
+        """(Thread) Kill
+        """
         self.active = False

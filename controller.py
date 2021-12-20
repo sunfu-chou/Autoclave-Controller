@@ -7,11 +7,27 @@ from heater_controller import _constrain
 
 
 class LUT:
+    """Look up table for converting sensor feedback data to another range
+    """
     def __init__(self) -> None:
+        """The method of LUT
+        """
+        
+        # data in range
         self.bp = []
+        
+        # data out range
         self.table = []
 
     def find(self, input: float) -> float:
+        """To map data in to data out range
+
+        Args:
+            input (float): Data in
+
+        Returns:
+            float: Data out
+        """
         if len(self.bp) and len(self.table):
             if input < self.bp[0]:
                 return 0
@@ -27,20 +43,48 @@ class LUT:
 
 
 class Controller:
+    """Parent Class Controller
+    """
     def __init__(self) -> None:
+        """The init method of Controller
+        """
         self.press_fb = 0
         self.press_sp = 0
         self.press_int = 0
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0) -> float:
+        """Run controller
+
+        Args:
+            timestamp (float): Now time
+            duty (float): last output duty cycle
+            press (float): press feedback
+            temp (float, optional): temperature feedback. Defaults to 0.
+
+        Returns:
+            float: output duty cycle.
+        """
         pass
 
-    def setPressSetpoint(self, setpoint):
+    def setPressSetpoint(self, setpoint: float) -> float:
+        """Set press setpoint
+
+        Args:
+            setpoint (float): setpoint
+
+        Returns:
+            float: setpoint
+        """
         self.press_sp = setpoint
+        return self.press_sp
 
 
 class SS(Controller):
+    """State space Controller(Controller)
+    """
     def __init__(self) -> None:
+        """The init method of State space Controller
+        """
         super().__init__()
 
         self.pressLUT = LUT()
@@ -126,7 +170,17 @@ class SS(Controller):
         self.press_fb_l = 0.0
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0) -> float:
-        
+        """Run controller
+
+        Args:
+            timestamp (float): Now time
+            duty (float): last output duty cycle
+            press (float): press feedback
+            temp (float, optional): temperature feedback. Defaults to 0.
+
+        Returns:
+            float: output duty cycle.
+        """
         for i in range(int(self.filter_len) * 4 - 1):
             self.press_history[i] = self.press_history[i + 1]
         self.press_history[int(self.filter_len) * 4 - 1] = press
@@ -229,6 +283,14 @@ class SS(Controller):
         return self.feedback + self.u_steady_state + integrated_aug
     
     def setPressSetpoint(self, setpoint):
+        """Set press setpoint and Convert setpress to state variable
+
+        Args:
+            setpoint (float): setpoint
+
+        Returns:
+            float: setpoint
+        """
         self.u_steady_state = self.pressLUT.find(setpoint) * self.K_dc
 
         try:
@@ -243,11 +305,15 @@ class SS(Controller):
         self.x4_steady_state = x[3]
         self.x5_steady_state = x[4]
         self.x6_steady_state = x[5]
-        super().setPressSetpoint(setpoint)
+        return super().setPressSetpoint(setpoint)
 
 
 class Fuzzy(Controller):
+    """Fuzzy Controller(Controller)
+    """
     def __init__(self) -> None:
+        """The init method of Fuzzy Controller
+        """
         super().__init__()
         self.setPressSetpoint(6.0)
 
@@ -322,6 +388,17 @@ class Fuzzy(Controller):
         self.gain_output = 1
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0):
+        """Run controller
+
+        Args:
+            timestamp (float): Now time
+            duty (float): last output duty cycle
+            press (float): press feedback
+            temp (float, optional): temperature feedback. Defaults to 0.
+
+        Returns:
+            float: output duty cycle.
+        """
         sgn = 1
         self.output = 0.0
         trigger_dev_range = self.press_sp / 12 #觸發預修正的範圍
@@ -378,7 +455,11 @@ class Fuzzy(Controller):
 
 
 class SS_Fuzzy(Controller):
+    """Integrate SS and Fuzzy Controller(Controller)
+    """
     def __init__(self) -> None:
+        """The init method of State space and Fuzzy Controller
+        """
         super().__init__()
         self.SS = SS()
         self.Fuzzy = Fuzzy()
@@ -390,6 +471,17 @@ class SS_Fuzzy(Controller):
         self.duty = 0.0
 
     def run(self, timestamp: float, duty: float, press: float, temp: float = 0) -> float:
+        """Run controller
+
+        Args:
+            timestamp (float): Now time
+            duty (float): last output duty cycle
+            press (float): press feedback
+            temp (float, optional): temperature feedback. Defaults to 0.
+
+        Returns:
+            float: output duty cycle.
+        """
         self.press_fb = press
         press_err = self.press_sp - self.press_fb
         trigger_range = self.press_sp / 10 #定義觸發範圍
@@ -422,6 +514,14 @@ class SS_Fuzzy(Controller):
         return self.duty
 
     def setPressSetpoint(self, setpoint):
+        """Set press setpoint
+
+        Args:
+            setpoint (float): setpoint
+
+        Returns:
+            float: setpoint
+        """
         super().setPressSetpoint(setpoint)
         self.SS.setPressSetpoint(setpoint)
         self.Fuzzy.setPressSetpoint(setpoint)
