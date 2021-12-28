@@ -35,8 +35,8 @@ class TWrite(threading.Thread):
         print("file touched:", filename)
         self.f.write(data.Data().title())
 
-        self.token = "vMzfHTBmtruTYBaMZHItmwyHhgvGyRwLbRCbyYbdWRdNDdxBx4xrqPDtoIiIkKRWITqLG5JcSfWSLfnA59vsxQ=="
-        self.bucket = "Pot"
+        self.token = "SvqIEqEk975hLm88vlKvKS1PK2Oyd77Pj2OFzBsvHSFtCPGJiBt2LcCffJeuN_6EPTwPGjeeG2eZmJG1UvpzfA=="
+        self.bucket = "Autoclave"
         self.client = InfluxDBClient(url="http://localhost:8086", token=self.token, org="NTHU")
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
 

@@ -98,7 +98,7 @@ class Data:
         self.press = float((self.raw_volt_0 - 0.5) / 4.0 * 17.0)
         self.volt_in = float(self.raw_volt_1)
 
-    def to_point(self, measurement: str = "Pot") -> Point:
+    def to_point(self, measurement: str = "Data") -> Point:
         """Convert data to Influx poing
 
         Args:
