@@ -54,7 +54,7 @@ pip install scikit_fuzzy matplotlib
 ```
 7. set pigpiod daemon
 
-touch file names `pigpiod.dervice` adn contains below in `/lib/systemd/system`
+touch file names `pigpiod.dervice` and contains below in `/lib/systemd/system`
 ```
 [Unit]
 Description=Pigpio daemon
