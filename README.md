@@ -1,6 +1,8 @@
 ## Environment
 
 Ubuntu 20.04
+Username: ubuntu
+Password: raspberry
 
 ## Run
 
