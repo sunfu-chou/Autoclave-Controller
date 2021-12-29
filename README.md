@@ -8,6 +8,9 @@ Ubuntu 20.04
 python main.py
 ```
 
+## Wifi
+SSID: 66666
+Password: 6666666666
 ## Preparation
 1. install virtualenv and create a virtual environment
 
